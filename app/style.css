@@ -539,3 +539,5 @@ body.performance * {
     padding-right: 20px;
   }
 }
+
+.stock-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;margin-top:20px}.stock-grid img{width:100%;height:180px;object-fit:contain;background:#0b1421;border-radius:8px}.mapwrap .token img{width:44px;height:44px;display:block}

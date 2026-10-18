@@ -147,6 +147,7 @@ function publicState(c) {
                 x: t.x,
                 y: t.y,
                 color: t.color,
+                image: t.image || null,
               })),
           }
         : null,
@@ -203,7 +204,7 @@ function validate(s) {
     if (
       c.media.some(
         (m) =>
-          !/^[-\w]+\.(png|jpg|jpeg|webp|gif|mp3|wav|ogg|m4a|mp4)$/i.test(
+          !/^[-\w]+\.(png|jpg|jpeg|webp|gif|svg|mp3|wav|ogg|m4a|mp4)$/i.test(
             m.file || "",
           ),
       )

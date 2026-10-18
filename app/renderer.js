@@ -115,12 +115,13 @@ function render() {
     ["cues", "Cues & hotkeys"],
     ["media", "Music & media"],
     ["maps", "Maps & reveals"],
+    ["library", "Starter maps & tokens"],
     ["show", "Show preparation"],
     ["timeline", "Session timeline"],
     ["settings", "Settings & checks"],
   ];
   $("#app").innerHTML =
-    `<div class="shell"><aside class="sidebar"><div class="brand">◈ Dungeon Director<span>YOUR TABLE. ON AIR.</span></div><label>CAMPAIGN</label><select id="campaignSwitch"><option value="">Select campaign</option>${snap.state.campaigns.map((x) => `<option value="${x.id}" ${x.id === snap.state.active ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select><nav>${nav.map(([key, label]) => `<button data-page="${key}" class="${page === key ? "active" : ""}">${label}</button>`).join("")}</nav><div class="bottom">${btn("+ New campaign", "newCampaign", "", "small ghost")}<p>Local workspace · v0.1.0<br>Autosaved after every action</p></div></aside><main class="main"><header class="topbar"><div class="status"><span><i class="dot ${snap.obs.connected ? "on" : ""}"></i>OBS ${snap.obs.connected ? "connected" : "disconnected"}</span>${c ? `<span class="pill ${c.rehearsal ? "gold" : "live"}">${c.rehearsal ? "REHEARSAL · OBS HELD" : "OBS OUTPUT ON"}</span>` : ""}</div><div class="actions">${c ? btn(c.rehearsal ? "Enable OBS output" : "Hold OBS output", "toggleMode", "", "small") + btn("Undo", "undo", "", "small") + btn("Privacy pause", "panic", "", "small danger") : ""}</div></header>${snap.recovery ? `<div class="banner">${esc(snap.recovery)}</div>` : ""}${c ? renderPage(c) : welcome()}</main></div>`;
+    `<div class="shell"><aside class="sidebar"><div class="brand">◈ Dungeon Director<span>YOUR TABLE. ON AIR.</span></div><label>CAMPAIGN</label><select id="campaignSwitch"><option value="">Select campaign</option>${snap.state.campaigns.map((x) => `<option value="${x.id}" ${x.id === snap.state.active ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select><nav>${nav.map(([key, label]) => `<button data-page="${key}" class="${page === key ? "active" : ""}">${label}</button>`).join("")}</nav><div class="bottom">${btn("+ New campaign", "newCampaign", "", "small ghost")}<p>Local workspace · v0.1.0<br>Autosaved after every action</p></div></aside><main class="main"><header class="topbar"><div class="status"><span><i class="dot ${snap.obs.connected ? "on" : ""}"></i>OBS ${snap.obs.connected ? "connected" : snap.obs.reconnecting ? "reconnecting…" : "disconnected"}</span>${c ? `<span class="pill ${c.rehearsal ? "gold" : "live"}">${c.rehearsal ? "REHEARSAL · OBS HELD" : "OBS OUTPUT ON"}</span>` : ""}</div><div class="actions">${c ? btn(c.rehearsal ? "Enable OBS output" : "Hold OBS output", "toggleMode", "", "small") + btn("Undo", "undo", "", "small") + btn("Privacy pause", "panic", "", "small danger") : ""}</div></header>${snap.recovery ? `<div class="banner">${esc(snap.recovery)}</div>` : ""}${c ? renderPage(c) : welcome()}</main></div>`;
 }
 function welcome() {
   return `<div class="welcome"><span class="pill gold">LOCAL D&D BROADCAST WORKSTATION</span><h1 style="margin-top:20px">Prepare the adventure.<br>Direct the show.</h1><p>Campaign notes, encounters, audience reveals, sound cues, and OBS controls together. Your private DM workspace stays separate from the audience output.</p><div class="actions">${btn("Create your campaign", "newCampaign", "", "primary")}${btn("Import a campaign", "importFile")}</div>${card("Start safely", "<p>New campaigns open in rehearsal. Connect OBS, import your media, configure your privacy scene, and run the pre-stream checks before arming live controls.</p><p>No account or cloud service is needed to run the installed application.</p>")}</div>`;
@@ -158,6 +159,12 @@ function cueCards(c) {
 }
 function renderPage(c) {
   switch (page) {
+    case "library": {
+      const filter = search.toLowerCase();
+      const assets = (snap.catalog || []).filter(x=>x.name.toLowerCase().includes(filter));
+      return heading("Starter maps & tokens", "Original starter artwork. Maps open privately; placed tokens start hidden.") +
+        `<input id="stockSearch" placeholder="Search maps or species…" value="${esc(search)}"><p>${(snap.catalog || []).filter(x=>x.kind==='map').length} maps · ${(snap.catalog || []).filter(x=>x.kind==='token').length} generic tokens. Coverage is listed by name; homebrew species are not included.</p><div class="stock-grid">${assets.map(x=>`<section class="card"><img loading="lazy" src="/stock/${encodeURIComponent(x.id)}" alt="${esc(x.name)}"><h3>${esc(x.name)}</h3><div class="actions">${btn(x.kind==='map'?'Use map':'Add portrait','stockAdd',`data-id="${esc(x.id)}" data-kind="${x.kind}"`,'small primary')}${x.kind==='token' && c.selectedMap ? btn('Place on selected map','stockToken',`data-id="${esc(x.id)}"`,'small'):''}</div></section>`).join('')}</div>`;
+    }
     case "session":
       return (
         heading(
@@ -279,7 +286,7 @@ function renderPage(c) {
           "Click grid cells to reveal or conceal. New maps start fully hidden.",
           btn("+ Map", "addEntity", 'data-collection="maps"', "primary"),
         ) +
-        `<div class="grid">${card("Map controls", `<select id="mapSwitch">${options(c.maps, m?.id, "Select map")}</select>${m ? `<div class="actions" style="margin-top:15px">${btn("Edit map", "editEntity", `data-id="${m.id}" data-collection="maps"`)}${btn(m.published ? "Hide audience map" : "Publish audience map", "mapPublish", `data-id="${m.id}"`, "primary")}${btn("+ Token", "addToken", `data-id="${m.id}"`)}</div><p class="tiny" style="margin-top:15px">${m.cols} × ${m.rows} cells · ${m.revealed.length} revealed. Click concealed cells to reveal, visible cells to conceal.</p>${(m.tokens || []).map((t, i) => `<div class="row"><span>${esc(t.name)} ${t.visible ? "· Public" : "· Private"}</span>${btn("Edit", "editToken", `data-id="${m.id}" data-index="${i}"`, "small")}</div>`).join("")}` : empty("Import a map image in Music & media, then create a map.")} `)}${card("DM map preview", m ? `<div class="mapwrap"><img src="/media/${esc(m.media)}" alt="DM map"><div class="foggrid" style="grid-template-columns:repeat(${m.cols},1fr);grid-template-rows:repeat(${m.rows},1fr)">${Array.from({ length: m.cols * m.rows }, (_, i) => `<button aria-label="${m.revealed.includes(i) ? "Conceal" : "Reveal"} cell ${i + 1}" class="fogcell ${m.revealed.includes(i) ? "clear" : ""}" data-action="mapCell" data-id="${m.id}" data-cell="${i}"></button>`).join("")}</div>${(m.tokens || []).map((t) => `<span class="token" style="left:${Number(t.x)}%;top:${Number(t.y)}%;background:${/^#[0-9a-f]{6}$/i.test(t.color) ? t.color : "#384b68"}">${esc(t.name)}</span>`).join("")}</div>` : empty("No map selected."))}</div>`
+        `<div class="grid">${card("Map controls", `<select id="mapSwitch">${options(c.maps, m?.id, "Select map")}</select>${m ? `<div class="actions" style="margin-top:15px">${btn("Edit map", "editEntity", `data-id="${m.id}" data-collection="maps"`)}${btn(m.published ? "Hide audience map" : "Publish audience map", "mapPublish", `data-id="${m.id}"`, "primary")}${btn("+ Token", "addToken", `data-id="${m.id}"`)}${btn("Reveal all", "mapFog", `data-id="${m.id}" data-reveal="true"`)}${btn("Conceal all", "mapFog", `data-id="${m.id}" data-reveal="false"`)}</div><p class="tiny" style="margin-top:15px">${m.cols} × ${m.rows} cells · ${m.revealed.length} revealed. Click concealed cells to reveal, visible cells to conceal.</p>${(m.tokens || []).map((t, i) => `<div class="row"><span>${esc(t.name)} ${t.visible ? "· Public" : "· Private"}</span>${btn("Edit", "editToken", `data-id="${m.id}" data-index="${i}"`, "small")}</div>`).join("")}` : empty("Import a map image in Music & media, then create a map.")} `)}${card("DM map preview", m ? `<div class="mapwrap"><img src="/media/${esc(m.media)}" alt="DM map"><div class="foggrid" style="grid-template-columns:repeat(${m.cols},1fr);grid-template-rows:repeat(${m.rows},1fr)">${Array.from({ length: m.cols * m.rows }, (_, i) => `<button aria-label="${m.revealed.includes(i) ? "Conceal" : "Reveal"} cell ${i + 1}" class="fogcell ${m.revealed.includes(i) ? "clear" : ""}" data-action="mapCell" data-id="${m.id}" data-cell="${i}"></button>`).join("")}</div>${(m.tokens || []).map((t) => `<span class="token" style="left:${Number(t.x)}%;top:${Number(t.y)}%;background:${/^#[0-9a-f]{6}$/i.test(t.color) ? t.color : "#384b68"}">${t.image ? `<img src="/media/${encodeURIComponent(t.image)}" alt="">` : ""}${esc(t.name)}</span>`).join("")}</div>` : empty("No map selected."))}</div>`
       );
     }
     case "show":
@@ -296,7 +303,7 @@ function renderPage(c) {
             btn("Episode settings", "episode") +
             btn("Pre-stream checks", "checks"),
         ) +
-        `<div class="grid">${card("Running order", c.rundown.map((r, i) => `<div class="row"><span class="stat" style="font-size:20px">${i + 1}</span><div class="grow"><strong>${esc(r.title)}</strong><span class="tiny muted">${esc(r.notes)} · ${esc(r.minutes || 0)} min ${r.done ? "· DONE" : ""}</span></div><div class="actions">${r.cueId ? btn("Run cue", "runCue", `data-id="${r.cueId}"`, "small primary") : ""}${btn(r.done ? "Reset" : "Done", "rundownDone", `data-id="${r.id}"`, "small")}${btn("↑", "rundownUp", `data-id="${r.id}"`, "small")}${btn("Edit", "editEntity", `data-id="${r.id}" data-collection="rundown"`, "small")}</div></div>`).join("") || empty("Plan the opening, recap, encounters, break, and closing."))}${card("Broadcast setup", `<p>Add an OBS Browser Source using this URL:</p><pre>${esc(snap.url)}/overlay</pre><p>Dice only: <code>${esc(snap.url)}/dice</code><br>Map only: <code>${esc(snap.url)}/battlemap</code></p><p class="tiny">Enable OBS output in the header before publishing. Empty output is transparent. Use a 1920 × 1080 source. Keep “Shutdown source when not visible” disabled for continuous updates. Capture desktop audio or your selected output devices in OBS.</p>${btn("Open audience display", "audienceWindow") + btn("Overlay appearance", "overlayTheme")}<p class="tiny" style="margin-top:15px">Audience display can be moved to a table screen or captured in OBS. Maps stretch to fit the display; use matching image dimensions.</p>`)}</div>`
+        `<div class="grid">${card("Running order", c.rundown.map((r, i) => `<div class="row"><span class="stat" style="font-size:20px">${i + 1}</span><div class="grow"><strong>${esc(r.title)}</strong><span class="tiny muted">${esc(r.notes)} · ${esc(r.minutes || 0)} min ${r.done ? "· DONE" : ""}</span></div><div class="actions">${r.cueId ? btn("Run cue", "runCue", `data-id="${r.cueId}"`, "small primary") : ""}${btn(r.done ? "Reset" : "Done", "rundownDone", `data-id="${r.id}"`, "small")}${btn("↑", "rundownUp", `data-id="${r.id}"`, "small")}${btn("Edit", "editEntity", `data-id="${r.id}" data-collection="rundown"`, "small")}</div></div>`).join("") || empty("Plan the opening, recap, encounters, break, and closing."))}${card("Broadcast setup", `<p>Add an OBS Browser Source using this URL:</p><pre>${esc(snap.url)}/overlay</pre><p>Dice only: <code>${esc(snap.url)}/dice</code><br>Map only: <code>${esc(snap.url)}/battlemap</code></p><p class="tiny">Enable OBS output in the header before publishing. Empty output is transparent. Use a 1920 × 1080 source. Keep “Shutdown source when not visible” disabled for continuous updates. Capture desktop audio or your selected output devices in OBS.</p>${btn("Open audience display", "audienceWindow") + btn("Overlay appearance", "overlayTheme") + btn("Add overlay source to OBS", "setupOverlay")}<p class="tiny" style="margin-top:15px">Audience display can be moved to a table screen or captured in OBS. Maps stretch to fit the display; use matching image dimensions.</p>`)}</div>`
       );
     case "timeline":
       return (
@@ -488,6 +495,19 @@ document.addEventListener("click", async (e) => {
           render();
         },
       );
+    else if (a === "setupOverlay") {
+      if (!snap.obs.connected) throw Error("Connect OBS in Settings & checks first.");
+      modal("Add OBS browser source", select("scene", "Scene", snap.obs.scenes, snap.obs.scene) + check("confirmed", "Add the live overlay source to this OBS scene", false), async d=>{
+        const result=await call("setupOverlay",{scene:d.scene,confirmed:d.confirmed === "on"});
+        toast(result.existing ? "Overlay source already configured. Check its visibility in OBS." : "Overlay source added to OBS.");
+      });
+    }
+    else if (a === "stockAdd" || a === "stockToken") {
+      await call("stockAdd", {id:x, mapId:a === "stockToken" ? c.selectedMap : undefined});
+      if (b.dataset.kind === "map" || a === "stockToken") {page="maps";render();}
+      toast(a === "stockToken" ? "Token placed hidden. Edit it on the map to reveal it." : "Added to this campaign.");
+    }
+    else if (a === "mapFog") await call("mapFog", {id:x,reveal:b.dataset.reveal === "true"});
     else if (a === "addEntity") entityEditor(b.dataset.collection);
     else if (a === "editEntity")
       entityEditor(
@@ -858,7 +878,7 @@ document.addEventListener("click", async (e) => {
           check("visible", "Visible to audience", t.visible),
         async (d) => {
           const tokens = structuredClone(m.tokens || []),
-            token = { ...d, x: Number(d.x), y: Number(d.y) };
+            token = { ...t, ...d, x: Number(d.x), y: Number(d.y) };
           if (index < 0) tokens.push(token);
           else tokens[index] = token;
           await call("saveEntity", {
@@ -1385,3 +1405,5 @@ function editPlaylists() {
     }
   };
 }
+
+document.addEventListener("input", e=>{if(e.target.id === "stockSearch"){const pos=e.target.selectionStart;search=e.target.value;render();const field=$("#stockSearch");field.focus();field.setSelectionRange(pos,pos);}});

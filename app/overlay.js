@@ -60,7 +60,7 @@ function render(s) {
       (m.tokens || [])
         .map(
           (t) =>
-            `<div class="token" style="left:${Math.max(0, Math.min(100, Number(t.x)))}%;top:${Math.max(0, Math.min(100, Number(t.y)))}%;background:${/^#[0-9a-f]{6}$/i.test(t.color) ? t.color : "#384b68"}">${esc(t.name)}</div>`,
+            `<div class="token" style="left:${Math.max(0, Math.min(100, Number(t.x)))}%;top:${Math.max(0, Math.min(100, Number(t.y)))}%;background:${/^#[0-9a-f]{6}$/i.test(t.color) ? t.color : "#384b68"}">${t.image ? `<img class="token-image" src="/media/${encodeURIComponent(t.image)}" alt="">` : ""}${esc(t.name)}</div>`,
         )
         .join("")
     : "";

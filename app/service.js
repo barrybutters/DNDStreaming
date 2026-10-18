@@ -6,6 +6,7 @@ const fs = require("node:fs"),
 const { EventEmitter } = require("node:events");
 const { Store } = require("./store");
 const { Obs } = require("./obs");
+const stock = require("./stock");
 const {
   id,
   clone,
@@ -19,6 +20,7 @@ const {
 } = require("./core");
 const TYPES = {
   ".png": "image/png",
+  ".svg": "image/svg+xml",
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".webp": "image/webp",
@@ -60,6 +62,7 @@ class Service extends EventEmitter {
       state: clone(this.store.state),
       obs: clone(this.obs.status),
       audience: clone(this.audience),
+      catalog: stock.catalog(),
       recovery: this.store.recovery,
       hotkeys: this.hotkeyStatus,
       url: this.url,
@@ -97,6 +100,8 @@ class Service extends EventEmitter {
     const nonMutating = [
       "obsConnect",
       "obsRefresh",
+      "obsDisconnect",
+      "setupOverlay",
       "preflight",
       "export",
       "credits",
@@ -106,6 +111,23 @@ class Service extends EventEmitter {
       if (type === "obsConnect")
         return this.obs.connect(s.settings.obsUrl, p.password || "");
       if (type === "obsRefresh") return this.obs.refresh();
+      if (type === "obsDisconnect") return this.obs.disconnect();
+      if (type === "setupOverlay") {
+        if (!p.confirmed) throw Error("Confirm adding the browser source to OBS.");
+        await this.obs.refresh();
+        const scene = String(p.scene || this.obs.status.scene || "");
+        if (!this.obs.status.scenes.includes(scene)) throw Error("Choose an existing OBS scene.");
+        const name = "Dungeon Director Overlay";
+        if (this.obs.status.inputs.includes(name)) {
+          const existing = await this.obs.call("GetInputSettings", {inputName:name});
+          if (existing.inputSettings?.url !== this.url + "/overlay")
+            throw Error("An input with this name already exists with another URL. Rename it in OBS before adding the overlay.");
+          return {existing:true, name};
+        }
+        await this.obs.call("CreateInput", {sceneName:scene,inputName:name,inputKind:"browser_source",
+          inputSettings:{url:this.url+"/overlay",width:1920,height:1080,shutdown:false},sceneItemEnabled:true});
+        await this.obs.refresh();return {name,scene};
+      }
       if (type === "preflight") return this.preflight();
       if (type === "export") return this.exportCampaign();
       if (type === "credits") return this.credits();
@@ -148,7 +170,28 @@ class Service extends EventEmitter {
         );
       } else {
         const c = active(s);
-        if (type === "patchCampaign") {
+        if (type === "stockAdd") {
+          const item = stock.asset(p.id);
+          const media = this.importMedia(item.path);
+          media.title = item.name;
+          media.source = "Dungeon Director original starter art";
+          media.terms = "Bundled artwork may be used in your campaigns and streams.";
+          if (item.kind === "map") {
+            const map = {id:id(),name:item.name,media:media.id,cols:24,rows:16,
+              revealed:Array.from({length:384},(_,i)=>i),tokens:[],published:false};
+            c.maps.push(map); c.selectedMap = map.id; result = map;
+          } else if (p.mapId) {
+            const map = c.maps.find(x=>x.id===p.mapId);
+            if (!map) throw Error("Select a map before placing a token.");
+            const token = {id:id(),name:item.name,publicName:item.name,image:media.id,
+              x:50,y:50,color:"#546c8b",visible:false};
+            map.tokens.push(token); result = token;
+          } else result = media;
+        } else if (type === "mapFog") {
+          const map = c.maps.find(x=>x.id===p.id);
+          if (!map) throw Error("Map missing.");
+          map.revealed = p.reveal ? Array.from({length:map.cols*map.rows},(_,i)=>i) : [];
+        } else if (type === "patchCampaign") {
           for (const k of [
             "name",
             "system",
@@ -763,6 +806,15 @@ class Service extends EventEmitter {
       res.end(JSON.stringify(this.audience));
       return;
     }
+    if (req.method === "GET" && u.pathname.startsWith("/stock/")) {
+      try {
+        const item = stock.asset(decodeURIComponent(u.pathname.slice(7)));
+        res.setHeader("Content-Type", TYPES[path.extname(item.path)]);
+        res.setHeader("Content-Security-Policy", "sandbox; default-src 'none'; style-src 'unsafe-inline'");
+        fs.createReadStream(item.path).pipe(res);
+      } catch {res.writeHead(404);res.end();}
+      return;
+    }
     if (req.method === "GET" && u.pathname.startsWith("/media/")) {
       const a = this.asset(u.pathname.slice(7));
       if (!a || !fs.existsSync(a.file)) {
@@ -773,6 +825,7 @@ class Service extends EventEmitter {
       const stat = fs.statSync(a.file),
         range = req.headers.range;
       res.setHeader("Content-Type", a.mime);
+      if (a.mime === "image/svg+xml") res.setHeader("Content-Security-Policy", "sandbox; default-src 'none'; style-src 'unsafe-inline'");
       res.setHeader("Accept-Ranges", "bytes");
       if (range) {
         const m = /^bytes=(\d+)-(\d*)$/.exec(range);
@@ -931,7 +984,7 @@ class Service extends EventEmitter {
   }
   async close() {
     for (const r of this.clients) r.end();
-    if (this.obs.client) await this.obs.client.disconnect();
+    await this.obs.disconnect();
     if (this.lanServer) await new Promise((r) => this.lanServer.close(r));
     if (this.server) await new Promise((r) => this.server.close(r));
   }

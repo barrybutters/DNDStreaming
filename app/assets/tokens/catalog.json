@@ -1,0 +1,688 @@
+[
+  {
+    "id": "token-aarakocra",
+    "name": "Aarakocra",
+    "kind": "token",
+    "file": "tokens/token-aarakocra.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-aasimar",
+    "name": "Aasimar",
+    "kind": "token",
+    "file": "tokens/token-aasimar.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-air-genasi",
+    "name": "Air Genasi",
+    "kind": "token",
+    "file": "tokens/token-air-genasi.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-astral-elf",
+    "name": "Astral Elf",
+    "kind": "token",
+    "file": "tokens/token-astral-elf.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-autognome",
+    "name": "Autognome",
+    "kind": "token",
+    "file": "tokens/token-autognome.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-boggart",
+    "name": "Boggart",
+    "kind": "token",
+    "file": "tokens/token-boggart.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-bugbear",
+    "name": "Bugbear",
+    "kind": "token",
+    "file": "tokens/token-bugbear.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-centaur",
+    "name": "Centaur",
+    "kind": "token",
+    "file": "tokens/token-centaur.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-changeling",
+    "name": "Changeling",
+    "kind": "token",
+    "file": "tokens/token-changeling.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-deep-gnome",
+    "name": "Deep Gnome",
+    "kind": "token",
+    "file": "tokens/token-deep-gnome.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-dhampir",
+    "name": "Dhampir",
+    "kind": "token",
+    "file": "tokens/token-dhampir.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-dragonborn",
+    "name": "Dragonborn",
+    "kind": "token",
+    "file": "tokens/token-dragonborn.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-drow",
+    "name": "Drow",
+    "kind": "token",
+    "file": "tokens/token-drow.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-duergar",
+    "name": "Duergar",
+    "kind": "token",
+    "file": "tokens/token-duergar.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-duskling",
+    "name": "Duskling",
+    "kind": "token",
+    "file": "tokens/token-duskling.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-dwarf",
+    "name": "Dwarf",
+    "kind": "token",
+    "file": "tokens/token-dwarf.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-earth-genasi",
+    "name": "Earth Genasi",
+    "kind": "token",
+    "file": "tokens/token-earth-genasi.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-eladrin",
+    "name": "Eladrin",
+    "kind": "token",
+    "file": "tokens/token-eladrin.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-elf",
+    "name": "Elf",
+    "kind": "token",
+    "file": "tokens/token-elf.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-faerie",
+    "name": "Faerie",
+    "kind": "token",
+    "file": "tokens/token-faerie.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-fairy",
+    "name": "Fairy",
+    "kind": "token",
+    "file": "tokens/token-fairy.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-feral-tiefling",
+    "name": "Feral Tiefling",
+    "kind": "token",
+    "file": "tokens/token-feral-tiefling.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-firbolg",
+    "name": "Firbolg",
+    "kind": "token",
+    "file": "tokens/token-firbolg.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-fire-genasi",
+    "name": "Fire Genasi",
+    "kind": "token",
+    "file": "tokens/token-fire-genasi.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-flamekin",
+    "name": "Flamekin",
+    "kind": "token",
+    "file": "tokens/token-flamekin.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-forest-gnome",
+    "name": "Forest Gnome",
+    "kind": "token",
+    "file": "tokens/token-forest-gnome.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-giff",
+    "name": "Giff",
+    "kind": "token",
+    "file": "tokens/token-giff.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-githyanki",
+    "name": "Githyanki",
+    "kind": "token",
+    "file": "tokens/token-githyanki.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-githzerai",
+    "name": "Githzerai",
+    "kind": "token",
+    "file": "tokens/token-githzerai.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-gnome",
+    "name": "Gnome",
+    "kind": "token",
+    "file": "tokens/token-gnome.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-goblin",
+    "name": "Goblin",
+    "kind": "token",
+    "file": "tokens/token-goblin.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-goliath",
+    "name": "Goliath",
+    "kind": "token",
+    "file": "tokens/token-goliath.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-grung",
+    "name": "Grung",
+    "kind": "token",
+    "file": "tokens/token-grung.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-hadozee",
+    "name": "Hadozee",
+    "kind": "token",
+    "file": "tokens/token-hadozee.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-half-elf",
+    "name": "Half-Elf",
+    "kind": "token",
+    "file": "tokens/token-half-elf.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-half-orc",
+    "name": "Half-Orc",
+    "kind": "token",
+    "file": "tokens/token-half-orc.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-halfling",
+    "name": "Halfling",
+    "kind": "token",
+    "file": "tokens/token-halfling.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-harengon",
+    "name": "Harengon",
+    "kind": "token",
+    "file": "tokens/token-harengon.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-hexblood",
+    "name": "Hexblood",
+    "kind": "token",
+    "file": "tokens/token-hexblood.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-high-elf",
+    "name": "High Elf",
+    "kind": "token",
+    "file": "tokens/token-high-elf.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-hill-dwarf",
+    "name": "Hill Dwarf",
+    "kind": "token",
+    "file": "tokens/token-hill-dwarf.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-hobgoblin",
+    "name": "Hobgoblin",
+    "kind": "token",
+    "file": "tokens/token-hobgoblin.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-human",
+    "name": "Human",
+    "kind": "token",
+    "file": "tokens/token-human.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-kalashtar",
+    "name": "Kalashtar",
+    "kind": "token",
+    "file": "tokens/token-kalashtar.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-kender",
+    "name": "Kender",
+    "kind": "token",
+    "file": "tokens/token-kender.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-kenku",
+    "name": "Kenku",
+    "kind": "token",
+    "file": "tokens/token-kenku.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-khoravar",
+    "name": "Khoravar",
+    "kind": "token",
+    "file": "tokens/token-khoravar.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-kithkin",
+    "name": "Kithkin",
+    "kind": "token",
+    "file": "tokens/token-kithkin.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-kobold",
+    "name": "Kobold",
+    "kind": "token",
+    "file": "tokens/token-kobold.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-leonin",
+    "name": "Leonin",
+    "kind": "token",
+    "file": "tokens/token-leonin.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-lizardfolk",
+    "name": "Lizardfolk",
+    "kind": "token",
+    "file": "tokens/token-lizardfolk.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-locathah",
+    "name": "Locathah",
+    "kind": "token",
+    "file": "tokens/token-locathah.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-lorwyn-changeling",
+    "name": "Lorwyn Changeling",
+    "kind": "token",
+    "file": "tokens/token-lorwyn-changeling.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-lorwyn-shadowmoor-elf",
+    "name": "Lorwyn-Shadowmoor Elf",
+    "kind": "token",
+    "file": "tokens/token-lorwyn-shadowmoor-elf.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-loxodon",
+    "name": "Loxodon",
+    "kind": "token",
+    "file": "tokens/token-loxodon.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-lupin",
+    "name": "Lupin",
+    "kind": "token",
+    "file": "tokens/token-lupin.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-minotaur",
+    "name": "Minotaur",
+    "kind": "token",
+    "file": "tokens/token-minotaur.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-mountain-dwarf",
+    "name": "Mountain Dwarf",
+    "kind": "token",
+    "file": "tokens/token-mountain-dwarf.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-orc",
+    "name": "Orc",
+    "kind": "token",
+    "file": "tokens/token-orc.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-owlin",
+    "name": "Owlin",
+    "kind": "token",
+    "file": "tokens/token-owlin.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-plasmoid",
+    "name": "Plasmoid",
+    "kind": "token",
+    "file": "tokens/token-plasmoid.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-reborn",
+    "name": "Reborn",
+    "kind": "token",
+    "file": "tokens/token-reborn.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-rimekin",
+    "name": "Rimekin",
+    "kind": "token",
+    "file": "tokens/token-rimekin.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-rock-gnome",
+    "name": "Rock Gnome",
+    "kind": "token",
+    "file": "tokens/token-rock-gnome.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-satyr",
+    "name": "Satyr",
+    "kind": "token",
+    "file": "tokens/token-satyr.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-sea-elf",
+    "name": "Sea Elf",
+    "kind": "token",
+    "file": "tokens/token-sea-elf.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-shadar-kai",
+    "name": "Shadar-kai",
+    "kind": "token",
+    "file": "tokens/token-shadar-kai.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-shifter",
+    "name": "Shifter",
+    "kind": "token",
+    "file": "tokens/token-shifter.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-simic-hybrid",
+    "name": "Simic Hybrid",
+    "kind": "token",
+    "file": "tokens/token-simic-hybrid.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-tabaxi",
+    "name": "Tabaxi",
+    "kind": "token",
+    "file": "tokens/token-tabaxi.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-thri-kreen",
+    "name": "Thri-kreen",
+    "kind": "token",
+    "file": "tokens/token-thri-kreen.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-tiefling",
+    "name": "Tiefling",
+    "kind": "token",
+    "file": "tokens/token-tiefling.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-tortle",
+    "name": "Tortle",
+    "kind": "token",
+    "file": "tokens/token-tortle.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-triton",
+    "name": "Triton",
+    "kind": "token",
+    "file": "tokens/token-triton.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-vedalken",
+    "name": "Vedalken",
+    "kind": "token",
+    "file": "tokens/token-vedalken.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-verdan",
+    "name": "Verdan",
+    "kind": "token",
+    "file": "tokens/token-verdan.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-warforged",
+    "name": "Warforged",
+    "kind": "token",
+    "file": "tokens/token-warforged.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-water-genasi",
+    "name": "Water Genasi",
+    "kind": "token",
+    "file": "tokens/token-water-genasi.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-wood-elf",
+    "name": "Wood Elf",
+    "kind": "token",
+    "file": "tokens/token-wood-elf.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-yuan-ti",
+    "name": "Yuan-ti",
+    "kind": "token",
+    "file": "tokens/token-yuan-ti.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-lightfoot-halfling",
+    "name": "Lightfoot Halfling",
+    "kind": "token",
+    "file": "tokens/token-lightfoot-halfling.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-stout-halfling",
+    "name": "Stout Halfling",
+    "kind": "token",
+    "file": "tokens/token-stout-halfling.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-ghostwise-halfling",
+    "name": "Ghostwise Halfling",
+    "kind": "token",
+    "file": "tokens/token-ghostwise-halfling.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-custom-lineage",
+    "name": "Custom Lineage",
+    "kind": "token",
+    "file": "tokens/token-custom-lineage.svg",
+    "category": "species"
+  },
+  {
+    "id": "token-generic-humanoid",
+    "name": "Generic Humanoid",
+    "kind": "token",
+    "file": "tokens/token-generic-humanoid.svg",
+    "category": "creature"
+  },
+  {
+    "id": "token-bandit",
+    "name": "Bandit",
+    "kind": "token",
+    "file": "tokens/token-bandit.svg",
+    "category": "creature"
+  },
+  {
+    "id": "token-guard",
+    "name": "Guard",
+    "kind": "token",
+    "file": "tokens/token-guard.svg",
+    "category": "creature"
+  },
+  {
+    "id": "token-skeleton",
+    "name": "Skeleton",
+    "kind": "token",
+    "file": "tokens/token-skeleton.svg",
+    "category": "creature"
+  },
+  {
+    "id": "token-zombie",
+    "name": "Zombie",
+    "kind": "token",
+    "file": "tokens/token-zombie.svg",
+    "category": "creature"
+  },
+  {
+    "id": "token-wolf",
+    "name": "Wolf",
+    "kind": "token",
+    "file": "tokens/token-wolf.svg",
+    "category": "creature"
+  },
+  {
+    "id": "token-bear",
+    "name": "Bear",
+    "kind": "token",
+    "file": "tokens/token-bear.svg",
+    "category": "creature"
+  },
+  {
+    "id": "token-giant-spider",
+    "name": "Giant Spider",
+    "kind": "token",
+    "file": "tokens/token-giant-spider.svg",
+    "category": "creature"
+  },
+  {
+    "id": "token-young-dragon",
+    "name": "Young Dragon",
+    "kind": "token",
+    "file": "tokens/token-young-dragon.svg",
+    "category": "creature"
+  },
+  {
+    "id": "token-ooze",
+    "name": "Ooze",
+    "kind": "token",
+    "file": "tokens/token-ooze.svg",
+    "category": "creature"
+  },
+  {
+    "id": "token-construct",
+    "name": "Construct",
+    "kind": "token",
+    "file": "tokens/token-construct.svg",
+    "category": "creature"
+  },
+  {
+    "id": "token-elemental",
+    "name": "Elemental",
+    "kind": "token",
+    "file": "tokens/token-elemental.svg",
+    "category": "creature"
+  },
+  {
+    "id": "token-fiend",
+    "name": "Fiend",
+    "kind": "token",
+    "file": "tokens/token-fiend.svg",
+    "category": "creature"
+  },
+  {
+    "id": "token-giant",
+    "name": "Giant",
+    "kind": "token",
+    "file": "tokens/token-giant.svg",
+    "category": "creature"
+  }
+]

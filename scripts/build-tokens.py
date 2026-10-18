@@ -1,0 +1,36 @@
+"""Original SVG starter portraits; deterministic and editable, no official artwork."""
+import colorsys, html, json, re
+from pathlib import Path
+names='Aarakocra|Aasimar|Air Genasi|Astral Elf|Autognome|Boggart|Bugbear|Centaur|Changeling|Deep Gnome|Dhampir|Dragonborn|Drow|Duergar|Duskling|Dwarf|Earth Genasi|Eladrin|Elf|Faerie|Fairy|Feral Tiefling|Firbolg|Fire Genasi|Flamekin|Forest Gnome|Giff|Githyanki|Githzerai|Gnome|Goblin|Goliath|Grung|Hadozee|Half-Elf|Half-Orc|Halfling|Harengon|Hexblood|High Elf|Hill Dwarf|Hobgoblin|Human|Kalashtar|Kender|Kenku|Khoravar|Kithkin|Kobold|Leonin|Lizardfolk|Locathah|Lorwyn Changeling|Lorwyn-Shadowmoor Elf|Loxodon|Lupin|Minotaur|Mountain Dwarf|Orc|Owlin|Plasmoid|Reborn|Rimekin|Rock Gnome|Satyr|Sea Elf|Shadar-kai|Shifter|Simic Hybrid|Tabaxi|Thri-kreen|Tiefling|Tortle|Triton|Vedalken|Verdan|Warforged|Water Genasi|Wood Elf|Yuan-ti|Lightfoot Halfling|Stout Halfling|Ghostwise Halfling|Custom Lineage|Generic Humanoid|Bandit|Guard|Skeleton|Zombie|Wolf|Bear|Giant Spider|Young Dragon|Ooze|Construct|Elemental|Fiend|Giant'.split('|')
+out=Path('app/assets/tokens');out.mkdir(parents=True,exist_ok=True)
+def color(h,s,v):return '#'+''.join(f'{round(x*255):02x}' for x in colorsys.hsv_to_rgb(h,s,v))
+catalog=[]
+for i,name in enumerate(names):
+    h=(i*.61803398875)%1;skin=color(h,.27,.83);accent=color(h,.65,.66);hair=color((h+.1)%1,.5,.3)
+    low=name.lower();features=''
+    pointed=any(x in low for x in ['elf','eladrin','gith','goblin','firbolg','fair','faer','khoravar','kender','changeling'])
+    if pointed:features+=f'<path d="M179 185 113 142 151 250 182 253M333 185 399 142 361 250 330 253" fill="{skin}" stroke="#172131" stroke-width="7"/>'
+    features+=f'<path d="M99 449Q109 337 209 328L303 328Q403 337 413 449" fill="{accent}"/><path d="M215 306V353Q256 380 297 353V306" fill="{skin}"/><ellipse cx="256" cy="228" rx="85" ry="106" fill="{skin}" stroke="#172131" stroke-width="6"/>'
+    features+=f'<path d="M171 204Q147 97 251 106Q358 95 343 210L318 174 286 159 256 179 218 158 187 205" fill="{hair}"/>'
+    if any(x in low for x in ['dwarf','duergar','gnome','giff','giant']):features+=f'<path d="M180 259Q211 295 256 274Q301 295 332 259L315 348 256 379 197 348Z" fill="{hair}"/><path d="M215 282 232 344M256 293V355M297 282 280 344" stroke="#ffffff44" stroke-width="6"/>'
+    if any(x in low for x in ['tiefling','minotaur','satyr','fiend','hexblood']):features+='<path d="M198 161Q130 154 155 68Q165 118 218 125M314 161Q382 154 357 68Q347 118 294 125" fill="#e2c79d" stroke="#172131" stroke-width="7"/>'
+    if any(x in low for x in ['aarakocra','kenku','owlin']):features+=f'<path d="M174 172 197 105 256 145 315 105 338 172 318 291 256 326 194 291" fill="{accent}"/><ellipse cx="217" cy="218" rx="30" ry="35" fill="#e8ddbe"/><ellipse cx="295" cy="218" rx="30" ry="35" fill="#e8ddbe"/><path d="M238 237 274 237 256 290Z" fill="#d5a048"/>'
+    if any(x in low for x in ['dragonborn','kobold','lizard','yuan-ti','dragon','tortle','grung','locathah']):features+=f'<path d="M177 201 192 143 224 158 256 117 288 158 320 143 335 201 321 292 284 326 228 326 191 292Z" fill="{accent}"/><ellipse cx="256" cy="282" rx="60" ry="31" fill="{skin}"/><path d="M238 278H244M268 278H274M215 304Q256 316 297 304" stroke="#172131" stroke-width="6"/>'
+    if any(x in low for x in ['tabaxi','leonin','shifter','lupin','wolf','bear','harengon','hadozee']):features+=f'<path d="M185 182 173 84 232 147M327 182 339 84 280 147" fill="{accent}" stroke="#172131" stroke-width="7"/><ellipse cx="256" cy="280" rx="52" ry="39" fill="#e6d3b4"/><path d="M243 266H269L256 281Z" fill="#172131"/>'
+    if low=='loxodon':features+=f'<ellipse cx="159" cy="225" rx="43" ry="79" fill="{skin}"/><ellipse cx="353" cy="225" rx="43" ry="79" fill="{skin}"/><path d="M237 251Q228 354 278 365Q314 365 311 330" fill="none" stroke="{skin}" stroke-width="42"/>'
+    if any(x in low for x in ['warforged','autognome','construct']):features+='<path d="M185 158 256 130 327 158 333 286 298 326H214L179 286Z" fill="#8e9caa" stroke="#172131" stroke-width="8"/><path d="M256 138V190M193 261H319M220 302H292" stroke="#465263" stroke-width="8"/>'
+    if any(x in low for x in ['plasmoid','ooze','elemental']):features+=f'<path d="M169 283Q126 218 188 162Q201 97 269 138Q359 116 345 227Q391 305 307 329Q214 369 169 283Z" fill="{accent}" opacity=".94"/><circle cx="208" cy="185" r="13" fill="#ffffff55"/><circle cx="299" cy="283" r="20" fill="#ffffff33"/>'
+    if low=='thri-kreen':features+='<path d="M190 189 219 142 256 163 293 142 322 189 314 283 280 319H232L198 283Z" fill="#9aab69"/><path d="M221 152 193 91M291 152 319 91" stroke="#9aab69" stroke-width="10"/><ellipse cx="215" cy="222" rx="24" ry="36" fill="#182329"/><ellipse cx="297" cy="222" rx="24" ry="36" fill="#182329"/>'
+    if low=='giant spider':features+='<path d="M205 219 132 171 102 225M205 248 115 249 91 300M307 219 380 171 410 225M307 248 397 249 421 300" fill="none" stroke="#302c40" stroke-width="18"/><ellipse cx="256" cy="242" rx="83" ry="77" fill="#44394b"/>'
+    if low=='skeleton':features+='<path d="M190 168Q256 118 322 168V266L294 289 284 326H228L218 289 190 266Z" fill="#dfd9bf"/><path d="M242 271 256 251 270 271Z" fill="#172131"/><path d="M227 302H285M239 289V316M256 289V319M273 289V316" stroke="#172131" stroke-width="5"/>'
+    features+='<path d="M201 218Q217 209 233 218M279 218Q295 209 311 218" fill="none" stroke="#172131" stroke-width="7" stroke-linecap="round"/><circle cx="218" cy="231" r="7" fill="#172131"/><circle cx="294" cy="231" r="7" fill="#172131"/>'
+    if any(x in low for x in ['aasimar','kalashtar','astral','fey']):features+=f'<ellipse cx="256" cy="92" rx="77" ry="16" fill="none" stroke="#ffe4a0" stroke-width="8"/>'
+    if any(x in low for x in ['genasi','flamekin','rimekin','duskling','goliath','reborn']):features+=f'<path d="M256 170 240 196 263 211 247 240M197 255 220 270M315 255 292 270" fill="none" stroke="{accent}" stroke-width="8"/>'
+    if low in ['guard','bandit']:features+='<path d="M166 199Q162 101 256 106Q350 101 346 199L316 179H196Z" fill="#626d7e"/><path d="M178 192H334" stroke="#d9c48e" stroke-width="10"/>'
+    if low=='zombie':features+='<path d="M195 253 224 275M280 179 305 192" stroke="#6b3e48" stroke-width="9"/>'
+    label=html.escape(name);size=22 if len(name)>19 else 28
+    svg=f'<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><title>{label} generic token</title><defs><clipPath id="c"><circle cx="256" cy="256" r="244"/></clipPath></defs><g clip-path="url(#c)"><rect width="512" height="512" fill="#142235"/><circle cx="256" cy="230" r="194" fill="{color(h,.45,.27)}"/>{features}<path d="M0 424H512V512H0Z" fill="#101a29"/><text x="256" y="466" text-anchor="middle" font-family="sans-serif" font-size="{size}" fill="#f2e3c8">{label}</text></g><circle cx="256" cy="256" r="244" fill="none" stroke="{accent}" stroke-width="12"/></svg>'
+    slug='token-'+re.sub('[^a-z0-9]+','-',low).strip('-');file=slug+'.svg';(out/file).write_text(svg)
+    catalog.append({'id':slug,'name':name,'kind':'token','file':'tokens/'+file,'category':'species' if i<84 else 'creature'})
+(out/'catalog.json').write_text(json.dumps(catalog,indent=2)+'\n')
+print(f'Generated {len(catalog)} original generic vector portraits')

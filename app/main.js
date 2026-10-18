@@ -208,6 +208,8 @@ app.whenReady().then(async () => {
         "break",
         "panic",
         "resume",
+        "stockAdd",
+        "mapFog",
         "mapSelect",
         "mapCell",
         "mapPublish",
@@ -219,6 +221,8 @@ app.whenReady().then(async () => {
         "obsAction",
         "obsConnect",
         "obsRefresh",
+        "obsDisconnect",
+        "setupOverlay",
         "preflight",
         "preview",
       ];
