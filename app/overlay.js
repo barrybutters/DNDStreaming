@@ -49,6 +49,11 @@ function render(s) {
   diceView.show(s.paused ? null : s.dice);
   $("pause").style.display = s.paused ? "flex" : "none";
   $("pauseTitle").textContent = s.title || "We’ll be right back";
+  if (s.layout && location.pathname === "/overlay") {
+    for (const [key,b] of Object.entries(DirectorLayout.normalize(s.layout))) {
+      Object.assign($(key).style,{left:b.x+'%',top:b.y+'%',width:b.w+'%',height:b.h+'%',right:'auto',bottom:'auto',visibility:b.hidden?'hidden':'visible',boxSizing:'border-box',overflow:'hidden'});
+    }
+  }
   const m = s.map;
   $("map").innerHTML = m
     ? `<img src="/media/${encodeURIComponent(m.media)}" alt="Battle map">` +

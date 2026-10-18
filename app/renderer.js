@@ -303,7 +303,7 @@ function renderPage(c) {
             btn("Episode settings", "episode") +
             btn("Pre-stream checks", "checks"),
         ) +
-        `<div class="grid">${card("Running order", c.rundown.map((r, i) => `<div class="row"><span class="stat" style="font-size:20px">${i + 1}</span><div class="grow"><strong>${esc(r.title)}</strong><span class="tiny muted">${esc(r.notes)} · ${esc(r.minutes || 0)} min ${r.done ? "· DONE" : ""}</span></div><div class="actions">${r.cueId ? btn("Run cue", "runCue", `data-id="${r.cueId}"`, "small primary") : ""}${btn(r.done ? "Reset" : "Done", "rundownDone", `data-id="${r.id}"`, "small")}${btn("↑", "rundownUp", `data-id="${r.id}"`, "small")}${btn("Edit", "editEntity", `data-id="${r.id}" data-collection="rundown"`, "small")}</div></div>`).join("") || empty("Plan the opening, recap, encounters, break, and closing."))}${card("Broadcast setup", `<p>Add an OBS Browser Source using this URL:</p><pre>${esc(snap.url)}/overlay</pre><p>Dice only: <code>${esc(snap.url)}/dice</code><br>Map only: <code>${esc(snap.url)}/battlemap</code></p><p class="tiny">Enable OBS output in the header before publishing. Empty output is transparent. Use a 1920 × 1080 source. Keep “Shutdown source when not visible” disabled for continuous updates. Capture desktop audio or your selected output devices in OBS.</p>${btn("Open audience display", "audienceWindow") + btn("Overlay appearance", "overlayTheme") + btn("Add overlay source to OBS", "setupOverlay")}<p class="tiny" style="margin-top:15px">Audience display can be moved to a table screen or captured in OBS. Maps stretch to fit the display; use matching image dimensions.</p>`)}</div>`
+        `<div class="grid">${card("Running order", c.rundown.map((r, i) => `<div class="row"><span class="stat" style="font-size:20px">${i + 1}</span><div class="grow"><strong>${esc(r.title)}</strong><span class="tiny muted">${esc(r.notes)} · ${esc(r.minutes || 0)} min ${r.done ? "· DONE" : ""}</span></div><div class="actions">${r.cueId ? btn("Run cue", "runCue", `data-id="${r.cueId}"`, "small primary") : ""}${btn(r.done ? "Reset" : "Done", "rundownDone", `data-id="${r.id}"`, "small")}${btn("↑", "rundownUp", `data-id="${r.id}"`, "small")}${btn("Edit", "editEntity", `data-id="${r.id}" data-collection="rundown"`, "small")}</div></div>`).join("") || empty("Plan the opening, recap, encounters, break, and closing."))}${card("Broadcast setup", `<p>Add an OBS Browser Source using this URL:</p><pre>${esc(snap.url)}/overlay</pre><p>Dice only: <code>${esc(snap.url)}/dice</code><br>Map only: <code>${esc(snap.url)}/battlemap</code></p><p class="tiny">Enable OBS output in the header before publishing. Empty output is transparent. Use a 1920 × 1080 source. Keep “Shutdown source when not visible” disabled for continuous updates. Capture desktop audio or your selected output devices in OBS.</p>${btn("Open audience display", "audienceWindow") + btn("Overlay appearance", "overlayTheme") + btn("Arrange overlay", "overlayLayout") + btn("Add overlay source to OBS", "setupOverlay")}<p class="tiny" style="margin-top:15px">Audience display can be moved to a table screen or captured in OBS. Maps stretch to fit the display; use matching image dimensions.</p>`)}</div>`
       );
     case "timeline":
       return (
@@ -495,6 +495,28 @@ document.addEventListener("click", async (e) => {
           render();
         },
       );
+    else if (a === "overlayLayout") {
+      const layout=DirectorLayout.normalize(c.public.layout);
+      modal("Arrange overlay", `<p>Drag a layer to move it. Set its size below. Values are percentages of the OBS canvas. Output follows rehearsal/live mode.</p><div class="layout-stage">${Object.entries(layout).map(([key,v])=>`<div data-layer="${key}" style="left:${v.x}%;top:${v.y}%;width:${v.w}%;height:${v.h}%">${key}</div>`).join('')}</div>`+
+        Object.entries(layout).map(([key,v])=>`<fieldset><legend>${key}</legend><div class="layout-fields">${['x','y','w','h'].map(n=>input(key+'_'+n,n.toUpperCase(),v[n],'number','min="0" max="100" step="0.5"')).join('')}${check(key+'_hidden','Hide layer',v.hidden)}</div></fieldset>`).join(''), async d=>{
+          const boxes={};for(const key of Object.keys(layout)){boxes[key]={};for(const n of ['x','y','w','h'])boxes[key][n]=Number(d[key+'_'+n]);boxes[key].hidden=!!d[key+'_hidden'];}
+          await call('public',{layout:DirectorLayout.normalize(boxes)});
+        });
+      const stage=$('.layout-stage');
+      stage.onpointerdown=e=>{
+        const box=e.target.closest('[data-layer]');if(!box)return;e.preventDefault();
+        const rect=stage.getBoundingClientRect(),key=box.dataset.layer;
+        const start={x:e.clientX,y:e.clientY,left:parseFloat(box.style.left),top:parseFloat(box.style.top)};
+        box.setPointerCapture(e.pointerId);
+        box.onpointermove=move=>{
+          const x=Math.max(0,Math.min(100-parseFloat(box.style.width),start.left+(move.clientX-start.x)/rect.width*100));
+          const y=Math.max(0,Math.min(100-parseFloat(box.style.height),start.top+(move.clientY-start.y)/rect.height*100));
+          box.style.left=x+'%';box.style.top=y+'%';$('#f-'+key+'_x').value=x.toFixed(1);$('#f-'+key+'_y').value=y.toFixed(1);
+        };
+        box.onpointerup=()=>{box.onpointermove=null;};
+      };
+      $('#editorForm').oninput=()=>{const d=form();for(const [key,v] of Object.entries(layout)){for(const n of ['x','y','w','h'])v[n]=Number(d[key+'_'+n]);v.hidden=!!d[key+'_hidden'];}for(const [key,v] of Object.entries(DirectorLayout.normalize(layout))){const box=stage.querySelector('[data-layer="'+key+'"]');Object.assign(box.style,{left:v.x+'%',top:v.y+'%',width:v.w+'%',height:v.h+'%',opacity:v.hidden?'.2':'1'});}};
+    }
     else if (a === "setupOverlay") {
       if (!snap.obs.connected) throw Error("Connect OBS in Settings & checks first.");
       modal("Add OBS browser source", select("scene", "Scene", snap.obs.scenes, snap.obs.scene) + check("confirmed", "Add the live overlay source to this OBS scene", false), async d=>{

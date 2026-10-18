@@ -310,6 +310,7 @@ class Service extends EventEmitter {
             "paused",
             "dice",
             "theme",
+            "layout",
           ])
             if (k in p) c.public[k] = clone(p[k]);
           // Clearing one public layer remains available while rehearsing other content.
@@ -890,6 +891,7 @@ class Service extends EventEmitter {
       "/dice": "overlay.html",
       "/battlemap": "overlay.html",
       "/dice-view.js": "dice-view.js",
+      "/layout.js": "layout.js",
       "/overlay.js": "overlay.js",
       "/audio.js": "audio.js",
     };
