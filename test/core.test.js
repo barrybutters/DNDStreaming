@@ -1,5 +1,85 @@
-const {test}=require('node:test');const assert=require('node:assert/strict');const {campaign,publicState,roll,nextTurn}=require('../app/core');
-test('audience projection excludes secrets, absent players, hidden combatants and private conditions',()=>{const c=campaign('Test');c.boundaries='SECRET BOUNDARY';c.notes=[{body:'SECRET NOTE'}];c.characters=[{id:'a',name:'Private name',publicName:'Public hero',visible:true,hp:3,maxHp:10,health:'status',conditions:'SECRET CONDITION',privateNotes:'SECRET BACKSTORY'},{id:'b',name:'Absent',visible:true,absent:true}];c.combat=[{id:'h',name:'SECRET BOSS',visible:false},{id:'g',name:'Private goblin',publicName:'Guard',visible:true,hp:5,maxHp:10,health:'hidden',conditions:'SECRET TRAP'}];c.public.showInitiative=true;const out=publicState(c),text=JSON.stringify(out);assert.equal(out.party.length,1);assert.equal(out.party[0].name,'Public hero');assert.equal(out.party[0].hp,'Wounded');assert.equal(out.party[0].conditions,'');assert.equal(out.initiative.length,1);assert.equal(out.initiative[0].hp,'');assert.ok(!text.includes('SECRET'));assert.ok(!text.includes('Private'));});
-test('fog hides tokens in concealed cells',()=>{const c=campaign();c.selectedMap='m';c.maps=[{id:'m',media:'i',published:true,cols:2,rows:2,revealed:[0],tokens:[{name:'Secret',publicName:'Enemy',visible:true,x:75,y:75},{publicName:'Hero',visible:true,x:25,y:25}]}];assert.deepEqual(publicState(c).map.tokens.map(x=>x.name),['Hero']);});
-test('dice parser, modifiers and advantage are bounded and deterministic under injected RNG',()=>{assert.equal(roll('2d6+3','normal',()=>4).total,11);assert.equal(roll('1d20-2','normal',()=>8).total,6);const v=[3,18];assert.equal(roll('1d20+5','advantage',()=>v.shift()).total,23);for(const s of ['0d20','101d6','1d1','1d10001','process.exit()'])assert.throws(()=>roll(s));assert.throws(()=>roll('2d6','advantage'));});
-test('round increases only at initiative wrap',()=>{const c=campaign();c.combat=[{name:'a'},{name:'b'}];nextTurn(c);assert.equal(c.round,1);nextTurn(c);assert.equal(c.round,2);});
+const { test } = require("node:test");
+const assert = require("node:assert/strict");
+const { campaign, publicState, roll, nextTurn } = require("../app/core");
+test("audience projection excludes secrets, absent players, hidden combatants and private conditions", () => {
+  const c = campaign("Test");
+  c.boundaries = "SECRET BOUNDARY";
+  c.notes = [{ body: "SECRET NOTE" }];
+  c.characters = [
+    {
+      id: "a",
+      name: "Private name",
+      publicName: "Public hero",
+      visible: true,
+      hp: 3,
+      maxHp: 10,
+      health: "status",
+      conditions: "SECRET CONDITION",
+      privateNotes: "SECRET BACKSTORY",
+    },
+    { id: "b", name: "Absent", visible: true, absent: true },
+  ];
+  c.combat = [
+    { id: "h", name: "SECRET BOSS", visible: false },
+    {
+      id: "g",
+      name: "Private goblin",
+      publicName: "Guard",
+      visible: true,
+      hp: 5,
+      maxHp: 10,
+      health: "hidden",
+      conditions: "SECRET TRAP",
+    },
+  ];
+  c.public.showInitiative = true;
+  const out = publicState(c),
+    text = JSON.stringify(out);
+  assert.equal(out.party.length, 1);
+  assert.equal(out.party[0].name, "Public hero");
+  assert.equal(out.party[0].hp, "Wounded");
+  assert.equal(out.party[0].conditions, "");
+  assert.equal(out.initiative.length, 1);
+  assert.equal(out.initiative[0].hp, "");
+  assert.ok(!text.includes("SECRET"));
+  assert.ok(!text.includes("Private"));
+});
+test("fog hides tokens in concealed cells", () => {
+  const c = campaign();
+  c.selectedMap = "m";
+  c.maps = [
+    {
+      id: "m",
+      media: "i",
+      published: true,
+      cols: 2,
+      rows: 2,
+      revealed: [0],
+      tokens: [
+        { name: "Secret", publicName: "Enemy", visible: true, x: 75, y: 75 },
+        { publicName: "Hero", visible: true, x: 25, y: 25 },
+      ],
+    },
+  ];
+  assert.deepEqual(
+    publicState(c).map.tokens.map((x) => x.name),
+    ["Hero"],
+  );
+});
+test("dice parser, modifiers and advantage are bounded and deterministic under injected RNG", () => {
+  assert.equal(roll("2d6+3", "normal", () => 4).total, 11);
+  assert.equal(roll("1d20-2", "normal", () => 8).total, 6);
+  const v = [3, 18];
+  assert.equal(roll("1d20+5", "advantage", () => v.shift()).total, 23);
+  for (const s of ["0d20", "101d6", "1d1", "1d10001", "process.exit()"])
+    assert.throws(() => roll(s));
+  assert.throws(() => roll("2d6", "advantage"));
+});
+test("round increases only at initiative wrap", () => {
+  const c = campaign();
+  c.combat = [{ name: "a" }, { name: "b" }];
+  nextTurn(c);
+  assert.equal(c.round, 1);
+  nextTurn(c);
+  assert.equal(c.round, 2);
+});

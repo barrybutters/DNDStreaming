@@ -1,10 +1,141 @@
-const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs'),os=require('node:os'),path=require('node:path');const {Service}=require('../app/service');const {active}=require('../app/core');
-async function setup(t){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'director-test-'));const svc=new Service(dir);t.after(async()=>{await svc.close();fs.rmSync(dir,{recursive:true,force:true});});await svc.command('createCampaign',{name:'Test'});return svc;}
-test('rehearsal has no OBS or public output; live mode only arms controls',async t=>{const svc=await setup(t);let calls=0;svc.obs.call=async()=>calls++;await svc.command('saveEntity',{collection:'cues',entity:{id:'q',name:'Test',steps:[{type:'title',title:'Secret draft'},{type:'scene',name:'Game'}]}});await svc.command('cue',{id:'q'});assert.equal(svc.audience.title,'');assert.equal(calls,0);await svc.command('mode',{rehearsal:false});assert.equal(svc.audience.title,'');await svc.command('cue',{id:'q'});assert.equal(svc.audience.title,'Secret draft');assert.equal(calls,1);});
-test('privacy pause interrupts a running cue and clears public output',async t=>{const svc=await setup(t);await svc.command('saveEntity',{collection:'cues',entity:{id:'q',name:'wait',steps:[{type:'wait',ms:80},{type:'title',title:'Should not show'}]}});await svc.command('mode',{rehearsal:false});const running=svc.command('cue',{id:'q'});await svc.command('panic');await assert.rejects(running,/Cancelled by privacy/);assert.equal(svc.audience.paused,true);assert.equal(svc.audience.title,'We’ll be right back');});
-test('failed cue preserves completed steps and reports failure',async t=>{const svc=await setup(t);await svc.command('saveEntity',{collection:'cues',entity:{id:'q',name:'Failure',steps:[{type:'title',title:'First step'},{type:'not-real'}]}});await assert.rejects(()=>svc.command('cue',{id:'q'}),/Step 2/);assert.equal(active(svc.store.state).public.title,'First step');assert.equal(active(svc.store.state).timeline[0].type,'error');});
-test('undo restores data in rehearsal and holds audience output',async t=>{const svc=await setup(t);await svc.command('mode',{rehearsal:false});await svc.command('public',{title:'Live title'});await svc.command('undo');assert.equal(active(svc.store.state).rehearsal,true);assert.equal(svc.audience.title,'Live title');assert.equal(active(svc.store.state).public.title,'');});
-test('campaign archive round trip includes media; traversal is rejected',async t=>{const svc=await setup(t);const filename=path.join(svc.store.dir,'test.png');fs.writeFileSync(filename,Buffer.from([1,2,3]));svc.importMedia(filename);const bytes=svc.exportCampaign();svc.importCampaign(bytes);assert.equal(svc.store.state.campaigns.length,2);const c=active(svc.store.state);assert.equal(c.rehearsal,true);assert.equal(c.media.length,1);const Zip=require('adm-zip'),zip=new Zip();zip.addFile('evil.txt',Buffer.from('bad'));assert.throws(()=>svc.importCampaign(zip.toBuffer()),/Unexpected archive path/);});
-test('persistence survives restart and corrupt workspace recovers backup',async t=>{const svc=await setup(t);await svc.command('marker',{text:'Persistent'});const restarted=new Service(svc.store.dir);assert.equal(active(restarted.store.state).timeline[0].text,'Persistent');fs.writeFileSync(svc.store.file,'broken');const recovered=new Service(svc.store.dir);assert.ok(recovered.store.recovery);assert.equal(recovered.store.state.campaigns[0].name,'Test');});
-test('public HTTP endpoints expose no private workspace and media supports ranges',async t=>{const svc=await setup(t);active(svc.store.state).notes=[{body:'SECRET'}];await svc.listen(true);let r=await fetch(svc.url+'/audience');assert.ok(!(await r.text()).includes('SECRET'));r=await fetch(svc.url+'/dev-api',{method:'POST',body:'{}'});assert.equal(r.status,404);const filename=path.join(svc.store.dir,'sample.wav');fs.writeFileSync(filename,Buffer.from('0123456789'));const m=svc.importMedia(filename);r=await fetch(svc.url+'/media/'+m.id,{headers:{Range:'bytes=2-5'}});assert.equal(r.status,206);assert.equal(await r.text(),'2345');});
-test('damage consumes temporary HP before real HP',async t=>{const svc=await setup(t);await svc.command('saveEntity',{collection:'combat',entity:{id:'a',name:'Hero',hp:10,maxHp:10,tempHp:4}});await svc.command('hp',{id:'a',delta:-6});const c=active(svc.store.state).combat[0];assert.equal(c.hp,8);assert.equal(c.tempHp,0);});
+const { test } = require("node:test");
+const assert = require("node:assert/strict");
+const fs = require("node:fs"),
+  os = require("node:os"),
+  path = require("node:path");
+const { Service } = require("../app/service");
+const { active } = require("../app/core");
+async function setup(t) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "director-test-"));
+  const svc = new Service(dir);
+  t.after(async () => {
+    await svc.close();
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+  await svc.command("createCampaign", { name: "Test" });
+  return svc;
+}
+test("rehearsal has no OBS or public output; live mode only arms controls", async (t) => {
+  const svc = await setup(t);
+  let calls = 0;
+  svc.obs.call = async () => calls++;
+  await svc.command("saveEntity", {
+    collection: "cues",
+    entity: {
+      id: "q",
+      name: "Test",
+      steps: [
+        { type: "title", title: "Secret draft" },
+        { type: "scene", name: "Game" },
+      ],
+    },
+  });
+  await svc.command("cue", { id: "q" });
+  assert.equal(svc.audience.title, "");
+  assert.equal(calls, 0);
+  await svc.command("mode", { rehearsal: false });
+  assert.equal(svc.audience.title, "");
+  await svc.command("cue", { id: "q" });
+  assert.equal(svc.audience.title, "Secret draft");
+  assert.equal(calls, 1);
+});
+test("privacy pause interrupts a running cue and clears public output", async (t) => {
+  const svc = await setup(t);
+  await svc.command("saveEntity", {
+    collection: "cues",
+    entity: {
+      id: "q",
+      name: "wait",
+      steps: [
+        { type: "wait", ms: 80 },
+        { type: "title", title: "Should not show" },
+      ],
+    },
+  });
+  await svc.command("mode", { rehearsal: false });
+  const running = svc.command("cue", { id: "q" });
+  await svc.command("panic");
+  await assert.rejects(running, /Cancelled by privacy/);
+  assert.equal(svc.audience.paused, true);
+  assert.equal(svc.audience.title, "We’ll be right back");
+});
+test("failed cue preserves completed steps and reports failure", async (t) => {
+  const svc = await setup(t);
+  await svc.command("saveEntity", {
+    collection: "cues",
+    entity: {
+      id: "q",
+      name: "Failure",
+      steps: [{ type: "title", title: "First step" }, { type: "not-real" }],
+    },
+  });
+  await assert.rejects(() => svc.command("cue", { id: "q" }), /Step 2/);
+  assert.equal(active(svc.store.state).public.title, "First step");
+  assert.equal(active(svc.store.state).timeline[0].type, "error");
+});
+test("undo restores data in rehearsal and holds audience output", async (t) => {
+  const svc = await setup(t);
+  await svc.command("mode", { rehearsal: false });
+  await svc.command("public", { title: "Live title" });
+  await svc.command("undo");
+  assert.equal(active(svc.store.state).rehearsal, true);
+  assert.equal(svc.audience.title, "Live title");
+  assert.equal(active(svc.store.state).public.title, "");
+});
+test("campaign archive round trip includes media; traversal is rejected", async (t) => {
+  const svc = await setup(t);
+  const filename = path.join(svc.store.dir, "test.png");
+  fs.writeFileSync(filename, Buffer.from([1, 2, 3]));
+  svc.importMedia(filename);
+  const bytes = svc.exportCampaign();
+  svc.importCampaign(bytes);
+  assert.equal(svc.store.state.campaigns.length, 2);
+  const c = active(svc.store.state);
+  assert.equal(c.rehearsal, true);
+  assert.equal(c.media.length, 1);
+  const Zip = require("adm-zip"),
+    zip = new Zip();
+  zip.addFile("evil.txt", Buffer.from("bad"));
+  assert.throws(
+    () => svc.importCampaign(zip.toBuffer()),
+    /Unexpected archive path/,
+  );
+});
+test("persistence survives restart and corrupt workspace recovers backup", async (t) => {
+  const svc = await setup(t);
+  await svc.command("marker", { text: "Persistent" });
+  const restarted = new Service(svc.store.dir);
+  assert.equal(active(restarted.store.state).timeline[0].text, "Persistent");
+  fs.writeFileSync(svc.store.file, "broken");
+  const recovered = new Service(svc.store.dir);
+  assert.ok(recovered.store.recovery);
+  assert.equal(recovered.store.state.campaigns[0].name, "Test");
+});
+test("public HTTP endpoints expose no private workspace and media supports ranges", async (t) => {
+  const svc = await setup(t);
+  active(svc.store.state).notes = [{ body: "SECRET" }];
+  await svc.listen(true);
+  let r = await fetch(svc.url + "/audience");
+  assert.ok(!(await r.text()).includes("SECRET"));
+  r = await fetch(svc.url + "/dev-api", { method: "POST", body: "{}" });
+  assert.equal(r.status, 404);
+  const filename = path.join(svc.store.dir, "sample.wav");
+  fs.writeFileSync(filename, Buffer.from("0123456789"));
+  const m = svc.importMedia(filename);
+  r = await fetch(svc.url + "/media/" + m.id, {
+    headers: { Range: "bytes=2-5" },
+  });
+  assert.equal(r.status, 206);
+  assert.equal(await r.text(), "2345");
+});
+test("damage consumes temporary HP before real HP", async (t) => {
+  const svc = await setup(t);
+  await svc.command("saveEntity", {
+    collection: "combat",
+    entity: { id: "a", name: "Hero", hp: 10, maxHp: 10, tempHp: 4 },
+  });
+  await svc.command("hp", { id: "a", delta: -6 });
+  const c = active(svc.store.state).combat[0];
+  assert.equal(c.hp, 8);
+  assert.equal(c.tempHp, 0);
+});

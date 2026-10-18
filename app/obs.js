@@ -1,8 +1,90 @@
-const {EventEmitter}=require('node:events');
-class Obs extends EventEmitter{
- constructor(){super();this.client=null;this.status={connected:false,scenes:[],inputs:[],recording:false,streaming:false,error:''};}
- async connect(url,password){const u=new URL(url);if(u.protocol!=='ws:'||!['127.0.0.1','localhost','[::1]'].includes(u.hostname))throw Error('This release connects to OBS on this PC only (ws://127.0.0.1:4455).');if(!this.client){const OBSWebSocket=require('obs-websocket-js').default;this.client=new OBSWebSocket();this.client.on('ConnectionClosed',()=>{this.status.connected=false;this.emit('status');});this.client.on('CurrentProgramSceneChanged',e=>{this.status.scene=e.sceneName;this.emit('status');});this.client.on('RecordStateChanged',e=>{this.status.recording=e.outputActive;this.emit('status');});this.client.on('StreamStateChanged',e=>{this.status.streaming=e.outputActive;this.emit('status');});}else await this.client.disconnect();try{await this.client.connect(url,password,{rpcVersion:1});this.status.connected=true;this.status.error='';await this.refresh();}catch(e){this.status.connected=false;this.status.error=e.message;throw e;}this.emit('status');return this.status;}
- async refresh(){const [sc,ins,rec,stream]=await Promise.all(['GetSceneList','GetInputList','GetRecordStatus','GetStreamStatus'].map(x=>this.client.call(x)));Object.assign(this.status,{scenes:sc.scenes.map(x=>x.sceneName),scene:sc.currentProgramSceneName,inputs:ins.inputs.map(x=>x.inputName),recording:rec.outputActive,streaming:stream.outputActive});return this.status;}
- async call(type,data){if(!this.status.connected)throw Error('OBS is disconnected.');const allowed=['SetCurrentProgramScene','SetInputMute','SetSceneItemEnabled','SetInputVolume','StartRecord','StopRecord','TriggerMediaInputAction'];if(!allowed.includes(type))throw Error('Unsupported OBS action.');return this.client.call(type,data);}
+const { EventEmitter } = require("node:events");
+class Obs extends EventEmitter {
+  constructor() {
+    super();
+    this.client = null;
+    this.status = {
+      connected: false,
+      scenes: [],
+      inputs: [],
+      recording: false,
+      streaming: false,
+      error: "",
+    };
+  }
+  async connect(url, password) {
+    const u = new URL(url);
+    if (
+      u.protocol !== "ws:" ||
+      !["127.0.0.1", "localhost", "[::1]"].includes(u.hostname)
+    )
+      throw Error(
+        "This release connects to OBS on this PC only (ws://127.0.0.1:4455).",
+      );
+    if (!this.client) {
+      const OBSWebSocket = require("obs-websocket-js").default;
+      this.client = new OBSWebSocket();
+      this.client.on("ConnectionClosed", () => {
+        this.status.connected = false;
+        this.emit("status");
+      });
+      this.client.on("CurrentProgramSceneChanged", (e) => {
+        this.status.scene = e.sceneName;
+        this.emit("status");
+      });
+      this.client.on("RecordStateChanged", (e) => {
+        this.status.recording = e.outputActive;
+        this.emit("status");
+      });
+      this.client.on("StreamStateChanged", (e) => {
+        this.status.streaming = e.outputActive;
+        this.emit("status");
+      });
+    } else await this.client.disconnect();
+    try {
+      await this.client.connect(url, password, { rpcVersion: 1 });
+      this.status.connected = true;
+      this.status.error = "";
+      await this.refresh();
+    } catch (e) {
+      this.status.connected = false;
+      this.status.error = e.message;
+      throw e;
+    }
+    this.emit("status");
+    return this.status;
+  }
+  async refresh() {
+    const [sc, ins, rec, stream] = await Promise.all(
+      [
+        "GetSceneList",
+        "GetInputList",
+        "GetRecordStatus",
+        "GetStreamStatus",
+      ].map((x) => this.client.call(x)),
+    );
+    Object.assign(this.status, {
+      scenes: sc.scenes.map((x) => x.sceneName),
+      scene: sc.currentProgramSceneName,
+      inputs: ins.inputs.map((x) => x.inputName),
+      recording: rec.outputActive,
+      streaming: stream.outputActive,
+    });
+    return this.status;
+  }
+  async call(type, data) {
+    if (!this.status.connected) throw Error("OBS is disconnected.");
+    const allowed = [
+      "SetCurrentProgramScene",
+      "SetInputMute",
+      "SetSceneItemEnabled",
+      "SetInputVolume",
+      "StartRecord",
+      "StopRecord",
+      "TriggerMediaInputAction",
+    ];
+    if (!allowed.includes(type)) throw Error("Unsupported OBS action.");
+    return this.client.call(type, data);
+  }
 }
-module.exports={Obs};
+module.exports = { Obs };

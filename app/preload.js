@@ -1,1 +1,10 @@
-const {contextBridge,ipcRenderer}=require('electron');contextBridge.exposeInMainWorld('director',{invoke:(type,payload)=>ipcRenderer.invoke('director',type,payload),on:(event,callback)=>{if(!['change','audio','error'].includes(event))return;const fn=(_,data)=>callback(data);ipcRenderer.on(event,fn);return ()=>ipcRenderer.removeListener(event,fn);}});
+const { contextBridge, ipcRenderer } = require("electron");
+contextBridge.exposeInMainWorld("director", {
+  invoke: (type, payload) => ipcRenderer.invoke("director", type, payload),
+  on: (event, callback) => {
+    if (!["change", "audio", "error"].includes(event)) return;
+    const fn = (_, data) => callback(data);
+    ipcRenderer.on(event, fn);
+    return () => ipcRenderer.removeListener(event, fn);
+  },
+});

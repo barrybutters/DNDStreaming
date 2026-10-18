@@ -1,6 +1,58 @@
-const fs=require('node:fs');const path=require('node:path');const {initial,validate}=require('./core');
-class Store{
- constructor(dir){this.dir=dir;fs.mkdirSync(dir,{recursive:true});fs.mkdirSync(path.join(dir,'media'),{recursive:true});fs.mkdirSync(path.join(dir,'backups'),{recursive:true});this.file=path.join(dir,'workspace.json');this.recovery=null;try{this.state=validate(JSON.parse(fs.readFileSync(this.file,'utf8')));}catch(e){if(fs.existsSync(this.file)){const backup=fs.readdirSync(path.join(dir,'backups')).sort().reverse().find(n=>n.endsWith('.json'));if(!backup)throw Error(`Workspace unreadable. Preserve ${this.file} and restore a campaign export. ${e.message}`);this.state=validate(JSON.parse(fs.readFileSync(path.join(dir,'backups',backup),'utf8')));this.recovery=`Recovered backup ${backup}; original workspace preserved.`;fs.copyFileSync(this.file,this.file+'.damaged-'+Date.now());}else this.state=initial();}}
- save(){validate(this.state);this.state.updated=new Date().toISOString();const data=JSON.stringify(this.state,null,2),tmp=this.file+'.tmp';fs.writeFileSync(tmp,data);const fd=fs.openSync(tmp,'r');fs.fsyncSync(fd);fs.closeSync(fd);fs.renameSync(tmp,this.file);const backups=path.join(this.dir,'backups');const today=new Date().toISOString().replace(/[:.]/g,'-');if(!this.lastBackup||Date.now()-this.lastBackup>300000){fs.writeFileSync(path.join(backups,today+'.json'),data);this.lastBackup=Date.now();const files=fs.readdirSync(backups).sort();for(const f of files.slice(0,-30))fs.unlinkSync(path.join(backups,f));}}
+const fs = require("node:fs");
+const path = require("node:path");
+const { initial, validate } = require("./core");
+class Store {
+  constructor(dir) {
+    this.dir = dir;
+    fs.mkdirSync(dir, { recursive: true });
+    fs.mkdirSync(path.join(dir, "media"), { recursive: true });
+    fs.mkdirSync(path.join(dir, "backups"), { recursive: true });
+    this.file = path.join(dir, "workspace.json");
+    this.recovery = null;
+    try {
+      this.state = validate(JSON.parse(fs.readFileSync(this.file, "utf8")));
+    } catch (e) {
+      if (fs.existsSync(this.file)) {
+        const backup = fs
+          .readdirSync(path.join(dir, "backups"))
+          .sort()
+          .reverse()
+          .find((n) => n.endsWith(".json"));
+        if (!backup)
+          throw Error(
+            `Workspace unreadable. Preserve ${this.file} and restore a campaign export. ${e.message}`,
+          );
+        this.state = validate(
+          JSON.parse(
+            fs.readFileSync(path.join(dir, "backups", backup), "utf8"),
+          ),
+        );
+        this.recovery = `Recovered backup ${backup}; original workspace preserved.`;
+        fs.copyFileSync(this.file, this.file + ".damaged-" + Date.now());
+      } else this.state = initial();
+    }
+  }
+  save() {
+    validate(this.state);
+    this.state.updated = new Date().toISOString();
+    const data = JSON.stringify(this.state, null, 2),
+      tmp = this.file + ".tmp";
+    fs.writeFileSync(tmp, data);
+    const fd = fs.openSync(tmp, "r+");
+    try {
+      fs.fsyncSync(fd);
+    } finally {
+      fs.closeSync(fd);
+    }
+    fs.renameSync(tmp, this.file);
+    const backups = path.join(this.dir, "backups");
+    const today = new Date().toISOString().replace(/[:.]/g, "-");
+    if (!this.lastBackup || Date.now() - this.lastBackup > 300000) {
+      fs.writeFileSync(path.join(backups, today + ".json"), data);
+      this.lastBackup = Date.now();
+      const files = fs.readdirSync(backups).sort();
+      for (const f of files.slice(0, -30)) fs.unlinkSync(path.join(backups, f));
+    }
+  }
 }
-module.exports={Store};
+module.exports = { Store };

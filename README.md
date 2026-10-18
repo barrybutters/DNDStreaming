@@ -39,7 +39,7 @@ The **Windows installer** GitHub Actions workflow builds and uploads the install
 - Party cards, player attendance, public names, health visibility, custom conditions, spotlight tracking.
 - Initiative, rounds, damage / healing / temporary HP, concentration reminders, saved encounters.
 - Local dice with modifiers, advantage / disadvantage, saved expressions, private or public results.
-- Managed media, layered and looping audio, fades, ducking, per-destination output devices, image cropping, WAV trimming and gain adjustment, rights and credit metadata.
+- Managed media, layered and looping audio, ordered playlists, fades, ducking, per-destination output devices, image cropping, WAV trimming and gain adjustment, rights and credit metadata.
 - Image battle maps, grid-based fog reveals, positioned tokens, audience display window.
 - Running order, attached cues, completion tracking, session timeline and text export, highlight markers.
 - Atomic workspace saving, automatic rotating snapshots, damaged-workspace recovery, campaign ZIP-based exports with managed media, non-destructive imports.
@@ -58,7 +58,7 @@ The **Windows installer** GitHub Actions workflow builds and uploads the install
 - Separate audio destinations require separate physical or virtual output devices and OBS capture configuration. No audio driver is installed. Media playback is performed by the desktop app; the visual overlay does not replay audio, avoiding duplicate playback.
 - Producer controls use HTTP on a trusted LAN and a rotating bearer link. Anyone with the link can trigger the limited allowed controls. Do not expose the port to the internet. The full DM workspace and media are not served by the LAN control endpoint.
 - The application does not auto-update during sessions. Updates are manual; export campaigns before installing a newer build. Automatic schema migration and rollback installers are not implemented.
-- Cue and shortcut editing in the first build includes advanced structured configuration. Additional polished editors, theme/layout editing, audio playlists, chat integrations, and automatic reconnection remain follow-up work unless explicitly added in a later commit.
+- Cue and shortcut editing use visual forms. Basic overlay accent/panel colours, font size, and initiative position are configurable. Full drag-and-drop overlay layout editing, chat integrations, and automatic OBS reconnection remain follow-up work.
 
 ## Data and security model
 

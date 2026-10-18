@@ -1,1 +1,45 @@
-{"name":"dungeon-director","version":"0.1.0","description":"Local D&D broadcast and campaign workstation","author":"Dungeon Director","license":"MIT","main":"app/main.js","scripts":{"start":"electron .","preview":"node app/preview.js","test":"node --test test/*.test.js","dist:win":"electron-builder --win nsis --x64"},"dependencies":{"adm-zip":"^0.5.16","obs-websocket-js":"^5.0.6"},"devDependencies":{"electron":"44.9.0","electron-builder":"^26.0.12"},"build":{"appId":"local.dungeondirector.desktop","productName":"Dungeon Director","files":["app/**/*","package.json"],"directories":{"output":"dist"},"win":{"target":"nsis","signAndEditExecutable":false},"nsis":{"oneClick":false,"allowToChangeInstallationDirectory":true,"createDesktopShortcut":true,"artifactName":"Dungeon-Director-Setup-${version}.${ext}"}}}
+{
+  "name": "dungeon-director",
+  "version": "0.1.0",
+  "description": "Local D&D broadcast and campaign workstation",
+  "author": "Dungeon Director",
+  "license": "MIT",
+  "main": "app/main.js",
+  "scripts": {
+    "start": "electron .",
+    "preview": "node app/preview.js",
+    "test": "node --test test/*.test.js",
+    "dist:win": "electron-builder --win nsis --x64",
+    "test:desktop": "electron . --smoke-test",
+    "test:ui": "node test/ui-smoke.cjs"
+  },
+  "dependencies": {
+    "adm-zip": "^0.6.1",
+    "obs-websocket-js": "^5.0.6"
+  },
+  "devDependencies": {
+    "electron": "44.9.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "local.dungeondirector.desktop",
+    "productName": "Dungeon Director",
+    "files": [
+      "app/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "artifactName": "Dungeon-Director-Setup-${version}.${ext}"
+    }
+  }
+}

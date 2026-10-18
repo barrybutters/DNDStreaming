@@ -11,11 +11,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: "24"
           cache: npm
       - run: npm ci
       - run: npx install-electron
       - run: npm test
+      - run: npm run test:ui
+      - run: npm run test:desktop
       - run: npm run dist:win
       - uses: actions/upload-artifact@v4
         with:
