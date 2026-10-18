@@ -283,7 +283,7 @@ function renderPage(c) {
       return (
         heading(
           "Maps & reveals",
-          "Click grid cells to reveal or conceal. New maps start fully hidden.",
+          "Click cells to change fog. Starter maps open privately with all cells revealed. Imported maps start concealed.",
           btn("+ Map", "addEntity", 'data-collection="maps"', "primary"),
         ) +
         `<div class="grid">${card("Map controls", `<select id="mapSwitch">${options(c.maps, m?.id, "Select map")}</select>${m ? `<div class="actions" style="margin-top:15px">${btn("Edit map", "editEntity", `data-id="${m.id}" data-collection="maps"`)}${btn(m.published ? "Hide audience map" : "Publish audience map", "mapPublish", `data-id="${m.id}"`, "primary")}${btn("+ Token", "addToken", `data-id="${m.id}"`)}${btn("Reveal all", "mapFog", `data-id="${m.id}" data-reveal="true"`)}${btn("Conceal all", "mapFog", `data-id="${m.id}" data-reveal="false"`)}</div><p class="tiny" style="margin-top:15px">${m.cols} × ${m.rows} cells · ${m.revealed.length} revealed. Click concealed cells to reveal, visible cells to conceal.</p>${(m.tokens || []).map((t, i) => `<div class="row"><span>${esc(t.name)} ${t.visible ? "· Public" : "· Private"}</span>${btn("Edit", "editToken", `data-id="${m.id}" data-index="${i}"`, "small")}</div>`).join("")}` : empty("Import a map image in Music & media, then create a map.")} `)}${card("DM map preview", m ? `<div class="mapwrap"><img src="/media/${esc(m.media)}" alt="DM map"><div class="foggrid" style="grid-template-columns:repeat(${m.cols},1fr);grid-template-rows:repeat(${m.rows},1fr)">${Array.from({ length: m.cols * m.rows }, (_, i) => `<button aria-label="${m.revealed.includes(i) ? "Conceal" : "Reveal"} cell ${i + 1}" class="fogcell ${m.revealed.includes(i) ? "clear" : ""}" data-action="mapCell" data-id="${m.id}" data-cell="${i}"></button>`).join("")}</div>${(m.tokens || []).map((t) => `<span class="token" style="left:${Number(t.x)}%;top:${Number(t.y)}%;background:${/^#[0-9a-f]{6}$/i.test(t.color) ? t.color : "#384b68"}">${t.image ? `<img src="/media/${encodeURIComponent(t.image)}" alt="">` : ""}${esc(t.name)}</span>`).join("")}</div>` : empty("No map selected."))}</div>`
@@ -327,7 +327,7 @@ function settings(c) {
         btn("Export campaign", "exportFile") +
         btn("Import campaign", "importFile"),
     ) +
-    `<div class="grid">${card("OBS connection", `<form id="obsForm">${input("url", "Local WebSocket URL", snap.state.settings.obsUrl)}${input("password", "OBS WebSocket password (kept in memory only)", "", "password")}<p class="tiny">In OBS: Tools → WebSocket Server Settings → enable the server. Copy its port and password.</p><button class="primary">Connect to OBS</button></form>${snap.obs.connected ? `<p style="margin-top:15px">Connected · ${esc(snap.obs.scene)}</p>${btn("Refresh scenes & inputs", "obsRefresh")}` : ""}`)}${card("Privacy & scene mappings", `<p>Configure the scene and microphones used by Privacy pause. Resume leaves microphones muted until you deliberately restore them.</p>${btn("Configure OBS mappings", "obsMappings")}`)}${card("Local data & recovery", `<p>Every action is saved atomically. Up to 30 automatic snapshots are retained. Campaign exports include managed media.</p><p>Importing an export creates a separate campaign and starts it in rehearsal.</p>${btn("Export campaign with media", "exportFile")}${btn("Import backup / campaign", "importFile")}`)}${card("Display & accessibility", `${btn(snap.state.settings.reduceMotion ? "Enable animations" : "Reduce motion", "reduceMotion")}${btn(c.performance ? "Disable performance mode" : "Enable performance mode", "performance")}<p class="tiny" style="margin-top:12px">Use Ctrl + / Ctrl − to scale the interface. Status labels accompany colour indicators.</p>`)}${card("Phone / producer controls", `<p>Optional control panel for devices on your trusted local network. Anyone with its temporary link can advance turns, trigger breaks, add markers, resume, or activate privacy pause.</p><p class="tiny">Uses local HTTP. Keep it on your trusted network; do not forward its port. Tokens rotate when enabled and are not saved.</p>${btn(snap.lan ? "Disable remote controls" : "Enable remote controls", "lan")}${lanUrls.map((x) => `<pre>${esc(x)}</pre>`).join("")}`)}${card("Audio outputs", `<p>Assign separate output devices for DM monitoring, audience audio, and players. Physical or virtual audio devices determine where sound actually goes.</p>${btn("Configure routing", "audioRouting")}<p class="tiny" style="margin-top:12px">Rehearsal routes cues to your DM output. Verify actual capture and monitoring in OBS before streaming.</p>`)}</div>`
+    `<div class="grid">${card("OBS connection", `<form id="obsForm">${input("url", "Local WebSocket URL", snap.state.settings.obsUrl)}${input("password", "OBS WebSocket password (kept in memory only)", "", "password")}<p class="tiny">In OBS: Tools → WebSocket Server Settings → enable the server. Copy its port and password.</p><button class="primary">Connect to OBS</button></form>${snap.obs.connected ? `<p style="margin-top:15px">Connected · ${esc(snap.obs.scene)}</p>${btn("Refresh scenes & inputs", "obsRefresh")}` : ""}`)}${card("Keyboard & foot pedal test", `<p>Test configured global shortcuts for 60 seconds. Keyboard-emulating pedals use the same shortcuts. During the test, shortcuts are reported without running their actions; Privacy pause remains active.</p>${btn(snap.hotkeyTest ? "Stop shortcut test" : "Test hotkeys / pedal", "hotkeyTest")}<p>${esc(snap.hotkeyTest?.last || "Test inactive")}</p>`)}${card("Privacy & scene mappings", `<p>Configure the scene and microphones used by Privacy pause. Resume leaves microphones muted until you deliberately restore them.</p>${btn("Configure OBS mappings", "obsMappings")}`)}${card("Local data & recovery", `<p>Every action is saved atomically. Up to 30 automatic snapshots are retained. Campaign exports include managed media.</p><p>Importing an export creates a separate campaign and starts it in rehearsal.</p>${btn("Export campaign with media", "exportFile")}${btn("Import backup / campaign", "importFile")}`)}${card("Display & accessibility", `${btn(snap.state.settings.reduceMotion ? "Enable animations" : "Reduce motion", "reduceMotion")}${btn(c.performance ? "Disable performance mode" : "Enable performance mode", "performance")}<p class="tiny" style="margin-top:12px">Use Ctrl + / Ctrl − to scale the interface. Status labels accompany colour indicators.</p>`)}${card("Phone / producer controls", `<p>Optional control panel for devices on your trusted local network. Anyone with its temporary link can advance turns, trigger breaks, add markers, resume, or activate privacy pause.</p><p class="tiny">Uses local HTTP. Keep it on your trusted network; do not forward its port. Tokens rotate when enabled and are not saved.</p>${btn(snap.lan ? "Disable remote controls" : "Enable remote controls", "lan")}${lanUrls.map((x) => `<pre>${esc(x)}</pre>`).join("")}`)}${card("Audio outputs", `<p>Assign separate output devices for DM monitoring, audience audio, and players. Physical or virtual audio devices determine where sound actually goes.</p>${btn("Configure routing", "audioRouting")}<p class="tiny" style="margin-top:12px">Rehearsal routes cues to your DM output. Verify actual capture and monitoring in OBS before streaming.</p>`)}</div>`
   );
 }
 function entityEditor(collection, entity) {
@@ -495,6 +495,7 @@ document.addEventListener("click", async (e) => {
           render();
         },
       );
+    else if (a === "hotkeyTest") await call("hotkeyTest",{enabled:!snap.hotkeyTest});
     else if (a === "overlayLayout") {
       const layout=DirectorLayout.normalize(c.public.layout);
       modal("Arrange overlay", `<p>Drag a layer to move it. Set its size below. Values are percentages of the OBS canvas. Output follows rehearsal/live mode.</p><div class="layout-stage">${Object.entries(layout).map(([key,v])=>`<div data-layer="${key}" style="left:${v.x}%;top:${v.y}%;width:${v.w}%;height:${v.h}%">${key}</div>`).join('')}</div>`+
@@ -525,7 +526,8 @@ document.addEventListener("click", async (e) => {
       });
     }
     else if (a === "stockAdd" || a === "stockToken") {
-      await call("stockAdd", {id:x, mapId:a === "stockToken" ? c.selectedMap : undefined});
+      const added = await call("stockAdd", {id:x, mapId:a === "stockToken" ? c.selectedMap : undefined});
+      if (b.dataset.kind === "map") selectedMap = added.id;
       if (b.dataset.kind === "map" || a === "stockToken") {page="maps";render();}
       toast(a === "stockToken" ? "Token placed hidden. Edit it on the map to reveal it." : "Added to this campaign.");
     }
@@ -964,7 +966,8 @@ document.addEventListener("change", async (e) => {
       await call("switchCampaign", { id: e.target.value });
     if (e.target.id === "mapSwitch") {
       selectedMap = e.target.value;
-      render();
+      if (selectedMap) await call("mapSelect", {id:selectedMap});
+      else render();
     }
   } catch (e) {
     toast(e.message, true);

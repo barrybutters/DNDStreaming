@@ -62,6 +62,7 @@ class Service extends EventEmitter {
       state: clone(this.store.state),
       obs: clone(this.obs.status),
       audience: clone(this.audience),
+      hotkeyTest: this.hotkeyTestUntil > Date.now() ? {until:this.hotkeyTestUntil,last:this.lastHotkey || "Waiting for a shortcut…"} : null,
       catalog: stock.catalog(),
       recovery: this.store.recovery,
       hotkeys: this.hotkeyStatus,
@@ -82,6 +83,13 @@ class Service extends EventEmitter {
       this.send("state", this.audience);
     }
   }
+  async triggerHotkey(h) {
+    if (h.action !== "panic" && this.hotkeyTestUntil > Date.now()) {
+      this.lastHotkey = `${h.key} → ${h.action}${h.cueId ? " ("+h.cueId+")" : ""}`;
+      this.emit("change");return;
+    }
+    return this.command(h.action, h.action === "cue" ? {id:h.cueId} : {});
+  }
   async command(type, p = {}) {
     if (type === "panic") {
       this.cueGeneration++;
@@ -101,6 +109,7 @@ class Service extends EventEmitter {
       "obsConnect",
       "obsRefresh",
       "obsDisconnect",
+      "hotkeyTest",
       "setupOverlay",
       "preflight",
       "export",
@@ -111,6 +120,7 @@ class Service extends EventEmitter {
       if (type === "obsConnect")
         return this.obs.connect(s.settings.obsUrl, p.password || "");
       if (type === "obsRefresh") return this.obs.refresh();
+      if (type === "hotkeyTest") {this.hotkeyTestUntil=p.enabled ? Date.now()+60000 : 0;this.lastHotkey=null;this.emit("change");return;}
       if (type === "obsDisconnect") return this.obs.disconnect();
       if (type === "setupOverlay") {
         if (!p.confirmed) throw Error("Confirm adding the browser source to OBS.");
@@ -608,12 +618,12 @@ class Service extends EventEmitter {
         detail: c.obs.safeScene || "Assign a safe scene.",
       },
       {
-        ok: c.obs.muteInputs.length > 0,
+        ok: c.obs.muteInputs.length > 0 && c.obs.muteInputs.every(x=>this.obs.status.inputs.includes(x)),
         label: "Privacy mute targets",
         detail: c.obs.muteInputs.join(", ") || "Assign microphones to mute.",
       },
       {
-        ok: !this.hotkeyStatus.some((h) => !h.ok),
+        ok: this.hotkeyStatus.length > 0 && !this.hotkeyStatus.some((h) => !h.ok),
         label: "Global shortcuts",
         detail: this.hotkeyStatus.length
           ? JSON.stringify(this.hotkeyStatus)

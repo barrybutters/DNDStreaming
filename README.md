@@ -89,3 +89,9 @@ The browser preview is a development aid with a private API token and temporary 
 The starter tokens are original, editable generic SVG portraits with the exact included species/lineage names listed in the app. They are not official D&D artwork and do not include game statistics. Creature tokens are generic fallbacks. Additional homebrew species can use imported portraits. Bundled artwork may be used in your campaigns and streams.
 
 OBS reconnects automatically after a connection loss. Failed actions are never queued or replayed. Credentials remain only in memory. Privacy pause stops local audio, clears audience content and attempts the configured OBS privacy scene/mutes even when rehearsal is holding output. Resume does not unmute microphones.
+
+### Portable ZIP
+
+Extract the entire portable ZIP into a writable folder and run **Start-Portable.cmd**. On first launch choose data beside the app or a custom folder. Keep the full extracted folder together; the executable depends on its bundled files. Normal installed launches continue to use the Windows profile data folder. To move an existing campaign, export/import it rather than deleting its old data. Advanced users can set `DIRECTOR_DATA_DIR` to an explicit data directory.
+
+**Show preparation → Arrange overlay** lets you drag layer positions and enter exact sizes or hide layers. Separate `/dice` and `/battlemap` sources retain their dedicated full-source layouts. In Settings, the shortcut test checks global hotkeys and keyboard-emulating foot pedals without triggering cues for 60 seconds. Privacy pause is always active.

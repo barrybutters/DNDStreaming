@@ -9,7 +9,7 @@
     "start": "electron .",
     "preview": "node app/preview.js",
     "test": "node --test test/*.test.js",
-    "dist:win": "electron-builder --win nsis --x64 --publish never",
+    "dist:win": "electron-builder --win nsis zip --x64 --publish never",
     "test:desktop": "electron . --smoke-test",
     "test:ui": "node test/ui-smoke.cjs"
   },
@@ -34,13 +34,20 @@
     },
     "win": {
       "target": "nsis",
-      "signAndEditExecutable": false
+      "signAndEditExecutable": false,
+      "artifactName": "Dungeon-Director-${version}-Windows-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "artifactName": "Dungeon-Director-Setup-${version}.${ext}"
-    }
+    },
+    "extraFiles": [
+      {
+        "from": "build/Start-Portable.cmd",
+        "to": "Start-Portable.cmd"
+      }
+    ]
   }
 }

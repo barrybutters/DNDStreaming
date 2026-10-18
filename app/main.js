@@ -40,7 +40,7 @@ function register() {
         throw Error("Unsupported shortcut action");
       ok = globalShortcut.register(h.key, () =>
         service
-          .command(h.action, h.action === "cue" ? { id: h.cueId } : {})
+          .triggerHotkey(h)
           .catch((e) => window?.webContents.send("error", e.message)),
       );
       if (!ok) error = "Shortcut is unavailable or already used.";
@@ -52,6 +52,7 @@ function register() {
 }
 app.whenReady().then(async () => {
   try {
+    if (!smokeTest) await require("./data-location").configureData(app,dialog);
     service = new Service(app.getPath("userData"));
     await service.listen(smokeTest);
     window = new BrowserWindow({
@@ -221,6 +222,7 @@ app.whenReady().then(async () => {
         "obsAction",
         "obsConnect",
         "obsRefresh",
+        "hotkeyTest",
         "obsDisconnect",
         "setupOverlay",
         "preflight",
@@ -264,7 +266,16 @@ app.whenReady().then(async () => {
           throw Error("Audience dice/SSE rendering failed: " + JSON.stringify(output));
         if(i===1 && output.titleDisplay!=="none") throw Error("Dice source leaked other overlay layers");
       }
-      const stockMap = service.snapshot().catalog.find(x=>x.kind==='map');
+      const catalog = service.snapshot().catalog;
+      if(catalog.filter(x=>x.kind==='map').length!==20 || catalog.filter(x=>x.kind==='token').length!==98)
+        throw Error("Starter asset bundle is incomplete");
+      await views[0].webContents.executeJavaScript(`(async()=>{
+        for(const item of ${JSON.stringify(catalog)}) {
+          const image=new Image();image.src='/stock/'+encodeURIComponent(item.id);await image.decode();
+          if(image.naturalWidth < (item.kind==='map' ? 1024 : 512)) throw Error('Asset decode failed: '+item.name);
+        }
+      })()`);
+      const stockMap = catalog.find(x=>x.kind==='map');
       if (!stockMap) throw Error("No bundled map found");
       const map = await service.command("stockAdd", {id:stockMap.id});
       await service.command("mapPublish", {id:map.id,published:true});

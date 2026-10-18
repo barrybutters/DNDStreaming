@@ -56,3 +56,11 @@ test('visual dice settle on server values, ignore duplicate events, and expire',
   const count=jobs.length;view.show(roll);assert.equal(jobs.length,count);
   now+=15000;view.show({...roll,rollId:'old'});assert.equal(node.hidden,true);
 });
+test('shortcut diagnostic suppresses normal actions while privacy pause remains active',async t=>{
+ const svc=await setup(t);let calls=0;
+ svc.command=async(type)=>{calls++;assert.equal(type,'panic')};
+ svc.hotkeyTestUntil=Date.now()+60000;
+ await svc.triggerHotkey({key:'Ctrl+F1',action:'nextTurn'});
+ assert.equal(calls,0);assert.match(svc.lastHotkey,/nextTurn/);
+ await svc.triggerHotkey({key:'Ctrl+F2',action:'panic'});assert.equal(calls,1);
+});
