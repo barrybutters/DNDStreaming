@@ -19,7 +19,8 @@
   },
   "devDependencies": {
     "electron": "44.9.0",
-    "electron-builder": "^26.0.12"
+    "electron-builder": "^26.0.12",
+    "jsdom": "^29.0.2"
   },
   "build": {
     "appId": "local.dungeondirector.desktop",

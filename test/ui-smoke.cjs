@@ -3,7 +3,9 @@ const fs = require("node:fs"),
 const { Service } = require("../app/service");
 const { JSDOM, VirtualConsole } = require("jsdom");
 (async () => {
-  const dir = path.join(__dirname, "dom-data-" + Date.now()),
+  const dir = fs.mkdtempSync(
+      path.join(require("node:os").tmpdir(), "director-ui-"),
+    ),
     svc = new Service(dir);
   const url = await svc.listen(true);
   const errors = [],
@@ -107,4 +109,7 @@ const { JSDOM, VirtualConsole } = require("jsdom");
   await svc.close();
   fs.rmSync(dir, { recursive: true, force: true });
   if (errors.length) process.exit(1);
-})();
+})().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

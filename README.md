@@ -70,6 +70,8 @@ The main UI uses Electron context isolation, sandboxing, a narrow IPC bridge, no
 
 ```powershell
 npm test
+npm run test:ui
+npm run test:desktop
 npm run preview
 ```
 
