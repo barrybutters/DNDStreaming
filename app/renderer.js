@@ -120,7 +120,7 @@ function render() {
     ["settings", "Settings & checks"],
   ];
   $("#app").innerHTML =
-    `<div class="shell"><aside class="sidebar"><div class="brand">◈ Dungeon Director<span>YOUR TABLE. ON AIR.</span></div><label>CAMPAIGN</label><select id="campaignSwitch"><option value="">Select campaign</option>${snap.state.campaigns.map((x) => `<option value="${x.id}" ${x.id === snap.state.active ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select><nav>${nav.map(([key, label]) => `<button data-page="${key}" class="${page === key ? "active" : ""}">${label}</button>`).join("")}</nav><div class="bottom">${btn("+ New campaign", "newCampaign", "", "small ghost")}<p>Local workspace · v0.1.0<br>Autosaved after every action</p></div></aside><main class="main"><header class="topbar"><div class="status"><span><i class="dot ${snap.obs.connected ? "on" : ""}"></i>OBS ${snap.obs.connected ? "connected" : "disconnected"}</span>${c ? `<span class="pill ${c.rehearsal ? "gold" : "live"}">${c.rehearsal ? "REHEARSAL" : "LIVE CONTROLS"}</span>` : ""}</div><div class="actions">${c ? btn(c.rehearsal ? "Arm live controls" : "Enter rehearsal", "toggleMode", "", "small") + btn("Undo", "undo", "", "small") + btn("Privacy pause", "panic", "", "small danger") : ""}</div></header>${snap.recovery ? `<div class="banner">${esc(snap.recovery)}</div>` : ""}${c ? renderPage(c) : welcome()}</main></div>`;
+    `<div class="shell"><aside class="sidebar"><div class="brand">◈ Dungeon Director<span>YOUR TABLE. ON AIR.</span></div><label>CAMPAIGN</label><select id="campaignSwitch"><option value="">Select campaign</option>${snap.state.campaigns.map((x) => `<option value="${x.id}" ${x.id === snap.state.active ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select><nav>${nav.map(([key, label]) => `<button data-page="${key}" class="${page === key ? "active" : ""}">${label}</button>`).join("")}</nav><div class="bottom">${btn("+ New campaign", "newCampaign", "", "small ghost")}<p>Local workspace · v0.1.0<br>Autosaved after every action</p></div></aside><main class="main"><header class="topbar"><div class="status"><span><i class="dot ${snap.obs.connected ? "on" : ""}"></i>OBS ${snap.obs.connected ? "connected" : "disconnected"}</span>${c ? `<span class="pill ${c.rehearsal ? "gold" : "live"}">${c.rehearsal ? "REHEARSAL · OBS HELD" : "OBS OUTPUT ON"}</span>` : ""}</div><div class="actions">${c ? btn(c.rehearsal ? "Enable OBS output" : "Hold OBS output", "toggleMode", "", "small") + btn("Undo", "undo", "", "small") + btn("Privacy pause", "panic", "", "small danger") : ""}</div></header>${snap.recovery ? `<div class="banner">${esc(snap.recovery)}</div>` : ""}${c ? renderPage(c) : welcome()}</main></div>`;
 }
 function welcome() {
   return `<div class="welcome"><span class="pill gold">LOCAL D&D BROADCAST WORKSTATION</span><h1 style="margin-top:20px">Prepare the adventure.<br>Direct the show.</h1><p>Campaign notes, encounters, audience reveals, sound cues, and OBS controls together. Your private DM workspace stays separate from the audience output.</p><div class="actions">${btn("Create your campaign", "newCampaign", "", "primary")}${btn("Import a campaign", "importFile")}</div>${card("Start safely", "<p>New campaigns open in rehearsal. Connect OBS, import your media, configure your privacy scene, and run the pre-stream checks before arming live controls.</p><p>No account or cloud service is needed to run the installed application.</p>")}</div>`;
@@ -184,7 +184,7 @@ function renderPage(c) {
             btn("Sort initiative", "sortCombat") +
             btn("Save encounter", "saveEncounter"),
         ) +
-        `<div class="grid">${card("Initiative · Round " + c.round, combatRows(c), btn("Next turn →", "nextTurn", "", "primary small"))}${card("Dice roller", `<form id="diceForm">${input("expression", "Dice expression", "1d20+5")}${select("mode", "Roll mode", ["normal", "advantage", "disadvantage"], "normal")}${check("publish", "Show result to audience", false)}<button class="primary" style="margin-top:15px">Roll dice</button></form><div class="actions" style="margin-top:10px">${btn("Hide dice result", "clearDice")}</div><h3 style="margin-top:25px">Saved rolls</h3><div class="actions">${c.savedRolls.map((r) => btn(esc(r), "savedRoll", `data-expression="${esc(r)}"`, "small")).join("")}</div>`)}${card("Saved encounters", c.encounters.map((e) => `<div class="row"><span>${esc(e.name)} · ${e.combat.length} combatants</span>${btn("Load", "loadEncounter", `data-id="${e.id}"`, "small")}</div>`).join("") || empty("Save the current encounter to reuse it."))}${card("Audience combat settings", `<p>Hidden enemies never appear in the public initiative list. Edit each combatant to set its public name, health display, and public conditions.</p>${btn(c.public.showInitiative ? "Hide initiative" : "Show initiative", "initiative")}`)}</div>`
+        `<div class="grid">${card("Initiative · Round " + c.round, combatRows(c), btn("Next turn →", "nextTurn", "", "primary small"))}${card("Dice roller", `<form id="diceForm">${input("expression", "Dice expression", "1d20+5")}${select("mode", "Roll mode", ["normal", "advantage", "disadvantage"], "normal")}${input("label", "Public roll label", "NPC / monster roll")}${check("publish", "Animate this roll for viewers in OBS", false)}<p class="tiny">OBS Browser Source (1920 × 1080): ${esc(snap.url)}/dice. Rolls clear after 14 seconds.</p><button class="primary" style="margin-top:15px">Roll dice</button></form><div class="actions" style="margin-top:10px">${btn("Hide dice result", "clearDice")}</div><h3 style="margin-top:25px">Saved rolls</h3><div class="actions">${c.savedRolls.map((r) => btn(esc(r), "savedRoll", `data-expression="${esc(r)}"`, "small")).join("")}</div>`)}${card("Saved encounters", c.encounters.map((e) => `<div class="row"><span>${esc(e.name)} · ${e.combat.length} combatants</span>${btn("Load", "loadEncounter", `data-id="${e.id}"`, "small")}</div>`).join("") || empty("Save the current encounter to reuse it."))}${card("Audience combat settings", `<p>Hidden enemies never appear in the public initiative list. Edit each combatant to set its public name, health display, and public conditions.</p>${btn(c.public.showInitiative ? "Hide initiative" : "Show initiative", "initiative")}`)}</div>`
       );
     case "party":
       return (
@@ -296,7 +296,7 @@ function renderPage(c) {
             btn("Episode settings", "episode") +
             btn("Pre-stream checks", "checks"),
         ) +
-        `<div class="grid">${card("Running order", c.rundown.map((r, i) => `<div class="row"><span class="stat" style="font-size:20px">${i + 1}</span><div class="grow"><strong>${esc(r.title)}</strong><span class="tiny muted">${esc(r.notes)} · ${esc(r.minutes || 0)} min ${r.done ? "· DONE" : ""}</span></div><div class="actions">${r.cueId ? btn("Run cue", "runCue", `data-id="${r.cueId}"`, "small primary") : ""}${btn(r.done ? "Reset" : "Done", "rundownDone", `data-id="${r.id}"`, "small")}${btn("↑", "rundownUp", `data-id="${r.id}"`, "small")}${btn("Edit", "editEntity", `data-id="${r.id}" data-collection="rundown"`, "small")}</div></div>`).join("") || empty("Plan the opening, recap, encounters, break, and closing."))}${card("Broadcast setup", `<p>Add an OBS Browser Source using this URL:</p><pre>${esc(snap.url)}/overlay</pre><p class="tiny">Use a 1920 × 1080 source. Keep “Shutdown source when not visible” disabled for continuous updates. Capture desktop audio or your selected output devices in OBS.</p>${btn("Open audience display", "audienceWindow") + btn("Overlay appearance", "overlayTheme")}<p class="tiny" style="margin-top:15px">Audience display can be moved to a table screen or captured in OBS. Maps stretch to fit the display; use matching image dimensions.</p>`)}</div>`
+        `<div class="grid">${card("Running order", c.rundown.map((r, i) => `<div class="row"><span class="stat" style="font-size:20px">${i + 1}</span><div class="grow"><strong>${esc(r.title)}</strong><span class="tiny muted">${esc(r.notes)} · ${esc(r.minutes || 0)} min ${r.done ? "· DONE" : ""}</span></div><div class="actions">${r.cueId ? btn("Run cue", "runCue", `data-id="${r.cueId}"`, "small primary") : ""}${btn(r.done ? "Reset" : "Done", "rundownDone", `data-id="${r.id}"`, "small")}${btn("↑", "rundownUp", `data-id="${r.id}"`, "small")}${btn("Edit", "editEntity", `data-id="${r.id}" data-collection="rundown"`, "small")}</div></div>`).join("") || empty("Plan the opening, recap, encounters, break, and closing."))}${card("Broadcast setup", `<p>Add an OBS Browser Source using this URL:</p><pre>${esc(snap.url)}/overlay</pre><p>Dice only: <code>${esc(snap.url)}/dice</code><br>Map only: <code>${esc(snap.url)}/battlemap</code></p><p class="tiny">Enable OBS output in the header before publishing. Empty output is transparent. Use a 1920 × 1080 source. Keep “Shutdown source when not visible” disabled for continuous updates. Capture desktop audio or your selected output devices in OBS.</p>${btn("Open audience display", "audienceWindow") + btn("Overlay appearance", "overlayTheme")}<p class="tiny" style="margin-top:15px">Audience display can be moved to a table screen or captured in OBS. Maps stretch to fit the display; use matching image dimensions.</p>`)}</div>`
       );
     case "timeline":
       return (
@@ -445,10 +445,11 @@ function revealDialog(p = {}) {
     images = c.media.filter((m) => m.kind === "image");
   modal(
     "Preview & reveal",
-    `<div class="banner">${c.rehearsal ? "Rehearsal: live audience output will stay unchanged." : "LIVE: publishing makes this visible to your audience."}</div>${input("title", "Public title", p.title ?? c.public.title)}${input("subtitle", "Public subtitle", p.subtitle ?? c.public.subtitle)}${select("portrait", "Public image", images, p.portrait ?? c.public.portrait)}<div id="revealPreview" style="margin-top:15px"></div>${check("confirmed", "I have checked this audience reveal", false)}`,
+    `<div class="banner">${c.rehearsal ? "OBS output is held. Publishing this reveal will enable it." : "LIVE: publishing makes this visible to your audience."}</div>${input("title", "Public title", p.title ?? c.public.title)}${input("subtitle", "Public subtitle", p.subtitle ?? c.public.subtitle)}${select("portrait", "Public image", images, p.portrait ?? c.public.portrait)}<div id="revealPreview" style="margin-top:15px"></div>${check("confirmed", "I have checked this audience reveal", false)}`,
     async (d) => {
       if (!d.confirmed)
         throw Error("Check the reveal preview before publishing.");
+      if (c.rehearsal) await call("mode", {rehearsal:false});
       await call("public", {
         title: d.title,
         subtitle: d.subtitle,
@@ -819,6 +820,10 @@ document.addEventListener("click", async (e) => {
         )
       )
         return;
+      if (!m.published && c.rehearsal) {
+        if (!confirm("Enable OBS output and publish this map now? Future live cues will also affect OBS.")) return;
+        await call("mode", {rehearsal:false});
+      }
       await call(a, { id: x, published: !m.published });
     } else if (a === "mapCell") {
       const m = c.maps.find((m) => m.id === x);
@@ -938,10 +943,15 @@ document.addEventListener("submit", async (e) => {
   const d = Object.fromEntries(new FormData(e.target));
   try {
     if (e.target.id === "diceForm") {
+      if (d.publish === "on" && current().rehearsal) {
+        if (!confirm("Enable OBS output and show this dice roll to viewers now?")) return;
+        await call("mode", {rehearsal:false});
+      }
       const r = await call("roll", {
         expression: d.expression,
         mode: d.mode,
         publish: d.publish === "on",
+        label: d.label,
       });
       toast(`${r.expression}: ${r.values.join(", ")} → ${r.total}`);
     } else {

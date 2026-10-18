@@ -12,6 +12,9 @@ const $ = (id) => document.getElementById(id),
         })[c],
     );
 let state = {};
+const diceView = DirectorDice.create($("dice"));
+if (location.pathname === "/dice") document.body.classList.add("dice-only");
+if (location.pathname === "/battlemap") document.body.classList.add("map-only");
 if (new URLSearchParams(location.search).has("screen"))
   document.body.classList.add("screen");
 function render(s) {
@@ -43,10 +46,7 @@ function render(s) {
         `<div class="card ${x.active ? "active" : ""}">${esc(x.name)}<small>${esc(x.hp)} ${esc(x.conditions)}</small></div>`,
     )
     .join("");
-  $("dice").style.display = s.dice ? "block" : "none";
-  if (s.dice)
-    $("dice").innerHTML =
-      `${esc(s.dice.expression)}<b>${esc(s.dice.total)}</b>${esc(s.dice.values.join(", "))}`;
+  diceView.show(s.paused ? null : s.dice);
   $("pause").style.display = s.paused ? "flex" : "none";
   $("pauseTitle").textContent = s.title || "We’ll be right back";
   const m = s.map;

@@ -269,8 +269,19 @@ class Service extends EventEmitter {
             "theme",
           ])
             if (k in p) c.public[k] = clone(p[k]);
+          // Clearing one public layer remains available while rehearsing other content.
+          for (const [key, value] of Object.entries(p)) {
+            if ((key === "dice" && value === null) ||
+                (["showParty", "showInitiative"].includes(key) && value === false)) {
+              this.audience[key === "showParty" ? "party" : key === "showInitiative" ? "initiative" : key] = key === "dice" ? null : [];
+              this.send("state", this.audience);
+            }
+          }
         } else if (type === "roll") {
-          result = roll(p.expression, p.mode);
+          if (p.publish && c.rehearsal)
+            throw Error("OBS output is held. Enable OBS output before publishing a dice roll.");
+          result = {...roll(p.expression, p.mode), rollId: id(), at: Date.now(),
+            label: String(p.label || "NPC / monster roll").slice(0, 100)};
           log(
             c,
             `${result.expression}: ${result.values.join(", ")} → ${result.total}${p.publish ? " (public)" : " (private)"}`,
@@ -311,7 +322,10 @@ class Service extends EventEmitter {
         } else if (type === "mapPublish") {
           const m = c.maps.find((x) => x.id === p.id);
           if (!m) throw Error("Map missing.");
+          if (p.published && c.rehearsal)
+            throw Error("OBS output is held. Enable OBS output before publishing the map.");
           c.selectedMap = m.id;
+          if (!p.published) { this.audience.map = null; this.send("state", this.audience); }
           m.published = !!p.published;
           log(
             c,
@@ -417,8 +431,11 @@ class Service extends EventEmitter {
     c.public.breakEnds = null;
     for (const m of c.maps) m.published = false;
     this.audio(c, { action: "stopAll" });
-    if (!c.rehearsal) {
-      this.broadcast();
+    {
+      this.audience = publicState(c);
+      this.send("state", this.audience);
+      this.emit("stopAudio");
+      this.send("audio", {action: "stopAll"});
       const errors = [];
       if (c.obs.safeScene)
         try {
@@ -813,6 +830,9 @@ class Service extends EventEmitter {
       "/style.css": "style.css",
       "/renderer.js": "renderer.js",
       "/overlay": "overlay.html",
+      "/dice": "overlay.html",
+      "/battlemap": "overlay.html",
+      "/dice-view.js": "dice-view.js",
       "/overlay.js": "overlay.js",
       "/audio.js": "audio.js",
     };

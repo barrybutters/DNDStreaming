@@ -132,6 +132,15 @@
         font-size: 70px;
         color: var(--accent, #e9bd73);
       }
+      [hidden] { display: none !important; }
+      .dice-tray { display:flex; flex-wrap:wrap; gap:12px; margin:18px 0; max-width:540px; }
+      .visual-die { display:grid; place-items:center; width:64px; height:64px; background:linear-gradient(135deg,#f4d798,#9b6228); color:#20150d; font-size:30px; font-weight:bold; clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%); }
+      .rolling { animation:tumble .45s infinite ease-in-out; }
+      @keyframes tumble { 0% {transform:rotate(0) translateY(0)} 50% {transform:rotate(170deg) translateY(-14px)} 100% {transform:rotate(360deg) translateY(0)} }
+      @media(prefers-reduced-motion:reduce) { .rolling {animation:none} }
+      body.dice-only > :not(#dice), body.map-only > :not(#map) {display:none !important}
+      body.dice-only #dice {left:50%;top:50%;transform:translate(-50%,-50%);min-width:260px;text-align:center}
+      #dice small {display:block}
     </style>
   </head>
   <body>
@@ -147,6 +156,7 @@
         <p id="countdown"></p>
       </div>
     </div>
+    <script src="/dice-view.js"></script>
     <script src="/overlay.js"></script>
   </body>
 </html>
