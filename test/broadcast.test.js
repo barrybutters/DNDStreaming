@@ -64,3 +64,8 @@ test('shortcut diagnostic suppresses normal actions while privacy pause remains 
  assert.equal(calls,0);assert.match(svc.lastHotkey,/nextTurn/);
  await svc.triggerHotkey({key:'Ctrl+F2',action:'panic'});assert.equal(calls,1);
 });
+test('a public roll explains why a privacy-paused audience cannot see it',async t=>{
+ const svc=await setup(t);await svc.command('mode',{rehearsal:false});await svc.command('panic');
+ await assert.rejects(svc.command('roll',{expression:'1d20',publish:true}),/Resume before publishing/);
+ const privateRoll=await svc.command('roll',{expression:'1d20',publish:false});assert.ok(privateRoll.total>=1);
+});

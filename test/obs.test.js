@@ -18,7 +18,7 @@ test('OBS reconnect restores status but never queues failed actions',async()=>{
 test('OBS browser source setup speaks the actual JSON WebSocket protocol and avoids duplicate sources',async t=>{
  const {WebSocketServer}=require('ws');const fs=require('node:fs'),os=require('node:os'),path=require('node:path');const {Service}=require('../app/service');
  const server=new WebSocketServer({port:0,host:'127.0.0.1'});await new Promise(r=>server.once('listening',r));
- const inputs=[];let creates=0;let source;
+ const inputs=[];let creates=0;let source;const sceneItems=[];
  server.on('connection',ws=>{
   ws.send(JSON.stringify({op:0,d:{obsWebSocketVersion:'5.5.0',rpcVersion:1}}));
   ws.on('message',raw=>{
@@ -29,7 +29,8 @@ test('OBS browser source setup speaks the actual JSON WebSocket protocol and avo
    if(requestType==='GetSceneList')responseData={scenes:[{sceneName:'Game'}],currentProgramSceneName:'Game'};
    else if(requestType==='GetInputList')responseData={inputs};
    else if(['GetRecordStatus','GetStreamStatus'].includes(requestType))responseData={outputActive:false};
-   else if(requestType==='CreateInput'){creates++;source=requestData;inputs.push({inputName:requestData.inputName});}
+   else if(requestType==='CreateInput'){creates++;source=requestData;inputs.push({inputName:requestData.inputName});sceneItems.push({sourceName:requestData.inputName});}
+   else if(requestType==='GetSceneItemList')responseData={sceneItems};
    else if(requestType==='GetInputSettings')responseData={inputSettings:source.inputSettings};
    ws.send(JSON.stringify({op:7,d:{requestType,requestId,requestStatus:{result:true,code:100},responseData}}));
   });

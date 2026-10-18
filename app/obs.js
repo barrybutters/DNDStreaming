@@ -62,7 +62,7 @@ class Obs extends EventEmitter {
   }
   async call(type,data) {
     if(!this.status.connected) throw Error('OBS is disconnected. No command has been queued.');
-    const allowed=['SetCurrentProgramScene','SetInputMute','SetSceneItemEnabled','SetInputVolume','StartRecord','StopRecord','TriggerMediaInputAction','CreateInput','GetInputSettings'];
+    const allowed=['SetCurrentProgramScene','SetInputMute','SetSceneItemEnabled','SetInputVolume','StartRecord','StopRecord','TriggerMediaInputAction','CreateInput','GetInputSettings','GetSceneItemList','CreateSceneItem'];
     if(!allowed.includes(type)) throw Error('Unsupported OBS action.');
     return this.client.call(type,data);
   }

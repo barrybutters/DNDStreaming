@@ -132,6 +132,11 @@ class Service extends EventEmitter {
           const existing = await this.obs.call("GetInputSettings", {inputName:name});
           if (existing.inputSettings?.url !== this.url + "/overlay")
             throw Error("An input with this name already exists with another URL. Rename it in OBS before adding the overlay.");
+          const list = await this.obs.call("GetSceneItemList", {sceneName:scene});
+          if (!(list.sceneItems || []).some(x=>x.sourceName === name)) {
+            await this.obs.call("CreateSceneItem", {sceneName:scene,sourceName:name,sceneItemEnabled:true});
+            return {existing:false,name,scene};
+          }
           return {existing:true, name};
         }
         await this.obs.call("CreateInput", {sceneName:scene,inputName:name,inputKind:"browser_source",
@@ -334,6 +339,7 @@ class Service extends EventEmitter {
         } else if (type === "roll") {
           if (p.publish && c.rehearsal)
             throw Error("OBS output is held. Enable OBS output before publishing a dice roll.");
+          if (p.publish && c.public.paused) throw Error("Audience output is paused. Resume before publishing a dice roll.");
           result = {...roll(p.expression, p.mode), rollId: id(), at: Date.now(),
             label: String(p.label || "NPC / monster roll").slice(0, 100)};
           log(
@@ -382,6 +388,7 @@ class Service extends EventEmitter {
           if (!m) throw Error("Map missing.");
           if (p.published && c.rehearsal)
             throw Error("OBS output is held. Enable OBS output before publishing the map.");
+          if (p.published && c.public.paused) throw Error("Audience output is paused. Resume before publishing the map.");
           c.selectedMap = m.id;
           if (!p.published) { this.audience.map = null; this.send("state", this.audience); }
           m.published = !!p.published;
