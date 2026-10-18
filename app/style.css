@@ -543,3 +543,5 @@ body.performance * {
 .stock-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;margin-top:20px}.stock-grid img{width:100%;height:180px;object-fit:contain;background:#0b1421;border-radius:8px}.mapwrap .token img{width:44px;height:44px;display:block}
 
 .layout-stage{position:relative;width:100%;aspect-ratio:16/9;background:#090f19;margin:16px 0;border:1px solid #5d718e;overflow:hidden}.layout-stage [data-layer]{position:absolute;border:2px solid #e9bd73;background:#25496166;color:white;cursor:move;touch-action:none;padding:3px;box-sizing:border-box}.layout-stage [data-layer="map"]{background:#19273b44}.layout-fields{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.layout-fields input[type=number]{width:70px}fieldset{border:1px solid #40546e;margin:12px 0}
+
+.mapwrap .token img{position:static;object-fit:contain}

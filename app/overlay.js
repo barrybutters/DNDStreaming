@@ -56,7 +56,7 @@ function render(s) {
   }
   const m = s.map;
   $("map").innerHTML = m
-    ? `<img src="/media/${encodeURIComponent(m.media)}" alt="Battle map">` +
+    ? `<div class="map-surface"><img src="/media/${encodeURIComponent(m.media)}" alt="Battle map">` +
       Array.from({ length: m.cols * m.rows }, (_, i) =>
         m.revealed.includes(i)
           ? ""
@@ -67,9 +67,19 @@ function render(s) {
           (t) =>
             `<div class="token" style="left:${Math.max(0, Math.min(100, Number(t.x)))}%;top:${Math.max(0, Math.min(100, Number(t.y)))}%;background:${/^#[0-9a-f]{6}$/i.test(t.color) ? t.color : "#384b68"}">${t.image ? `<img class="token-image" src="/media/${encodeURIComponent(t.image)}" alt="">` : ""}${esc(t.name)}</div>`,
         )
-        .join("")
+        .join("") + "</div>"
     : "";
+  const mapImage = $("map").querySelector(".map-surface > img");
+  if (mapImage) { mapImage.onload = fitMap; if (mapImage.complete) fitMap(); }
 }
+function fitMap() {
+  const surface = $("map").querySelector(".map-surface"), image = surface?.querySelector("img");
+  if (!image?.naturalWidth) return;
+  const parent = $("map"), ratio = image.naturalWidth/image.naturalHeight;
+  const width = Math.min(parent.clientWidth,parent.clientHeight*ratio), height = width/ratio;
+  Object.assign(surface.style,{width:width+'px',height:height+'px',left:(parent.clientWidth-width)/2+'px',top:(parent.clientHeight-height)/2+'px'});
+}
+window.addEventListener("resize",fitMap);
 const events = new EventSource("/events");
 events.addEventListener("state", (e) => render(JSON.parse(e.data)));
 setInterval(() => {

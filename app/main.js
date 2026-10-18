@@ -281,9 +281,11 @@ app.whenReady().then(async () => {
       await service.command("mapPublish", {id:map.id,published:true});
       await new Promise(r=>setTimeout(r,400));
       await views[0].webContents.executeJavaScript(`(async()=>{
-        const image=document.querySelector('#map > img');
+        const image=document.querySelector('#map .map-surface > img');
         if(!image)throw Error('Published map did not render');
         await image.decode();if(image.naturalWidth<1024)throw Error('Bundled map is too small');
+        const surface=image.parentElement.getBoundingClientRect();
+        if(Math.abs(surface.width/surface.height-image.naturalWidth/image.naturalHeight)>.01)throw Error('Map aspect ratio is distorted');
       })()`);
       await service.command("panic");
       await new Promise(r=>setTimeout(r,150));
