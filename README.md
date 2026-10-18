@@ -50,7 +50,7 @@ The **Windows installer** GitHub Actions workflow builds and uploads the install
 
 - This is an alpha. Live OBS operation, Windows global hotkeys, hardware audio outputs, multi-monitor behaviour, and installation still require testing on an actual Windows streaming PC.
 - An OBS failure cannot undo OBS actions that already completed. Cue errors identify the step that failed. Privacy pause cancels subsequent cue steps, but cannot retract an OBS request already sent or a secret viewers already saw.
-- Entering rehearsal holds audience output; it does not stop an existing stream or automatically mute existing OBS sources. Rehearsal audio routes to the selected DM device. Verify that OBS is not capturing this output if it must remain private.
+- Arming live controls discards rehearsed title / portrait changes and requires maps to be explicitly published again. Entering rehearsal holds audience output; it does not stop an existing stream or automatically mute existing OBS sources. Rehearsal audio routes to the selected DM device. Verify that OBS is not capturing this output if it must remain private.
 - Undo restores local data and enters rehearsal; it does not rewind OBS, un-reveal information, or undo sound already played.
 - Resume clears the local pause screen; it deliberately does not unmute microphones or choose a return scene. Restore these explicitly in OBS / scene controls.
 - Maps use rectangular cell reveals and percentage-position tokens. They are not a full VTT, rules engine, dynamic-lighting system, or automated character-sheet integration. The map image stretches to the audience canvas; use matching aspect ratios.

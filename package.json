@@ -9,7 +9,7 @@
     "start": "electron .",
     "preview": "node app/preview.js",
     "test": "node --test test/*.test.js",
-    "dist:win": "electron-builder --win nsis --x64",
+    "dist:win": "electron-builder --win nsis --x64 --publish never",
     "test:desktop": "electron . --smoke-test",
     "test:ui": "node test/ui-smoke.cjs"
   },

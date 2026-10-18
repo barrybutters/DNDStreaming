@@ -112,6 +112,7 @@ class Service extends EventEmitter {
       return publicState(active(s));
     }
     const before = clone(s);
+    const operationGeneration = this.cueGeneration;
     let result;
     try {
       if (type === "createCampaign") {
@@ -165,6 +166,23 @@ class Service extends EventEmitter {
           ])
             if (k in p) c[k] = clone(p[k]);
         } else if (type === "mode") {
+          if (c.rehearsal && !p.rehearsal) {
+            for (const key of [
+              "title",
+              "subtitle",
+              "portrait",
+              "dice",
+              "paused",
+              "breakEnds",
+            ])
+              c.public[key] = clone(
+                this.audience[key] ??
+                  { title: "", subtitle: "", paused: false }[key] ??
+                  null,
+              );
+            // Fog and token edits made during rehearsal require an explicit map publish.
+            for (const map of c.maps) map.published = false;
+          }
           c.rehearsal = !!p.rehearsal;
           log(
             c,
@@ -357,7 +375,8 @@ class Service extends EventEmitter {
           this.broadcast();
           this.emit("change");
         }
-      } else this.store.state = before;
+      } else if (operationGeneration === this.cueGeneration)
+        this.store.state = before;
       throw e;
     }
   }
@@ -645,11 +664,23 @@ class Service extends EventEmitter {
     c.id = id();
     c.name += " (imported)";
     c.rehearsal = true;
-    for (const m of c.media)
-      fs.writeFileSync(
-        path.join(this.store.dir, "media", m.file),
-        zip.getEntry("media/" + m.file).getData(),
-      );
+    const mediaIds = new Map();
+    for (const m of c.media) {
+      const bytes = zip.getEntry("media/" + m.file).getData();
+      const file = id() + path.extname(m.file);
+      fs.writeFileSync(path.join(this.store.dir, "media", file), bytes);
+      m.file = file;
+      mediaIds.set(m.id, id());
+    }
+    const remap = (value) => {
+      if (typeof value === "string") return mediaIds.get(value) || value;
+      if (Array.isArray(value)) return value.map(remap);
+      if (value && typeof value === "object") {
+        for (const key of Object.keys(value)) value[key] = remap(value[key]);
+      }
+      return value;
+    };
+    remap(c);
     this.store.state.campaigns.push(c);
     this.store.state.active = c.id;
     this.store.save();

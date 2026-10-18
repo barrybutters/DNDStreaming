@@ -139,3 +139,31 @@ test("damage consumes temporary HP before real HP", async (t) => {
   assert.equal(c.hp, 8);
   assert.equal(c.tempHp, 0);
 });
+
+test("arming live controls never publishes a rehearsed secret on an unrelated action", async (t) => {
+  const svc = await setup(t);
+  await svc.command("public", {
+    title: "Secret rehearsal title",
+    portrait: "secret-image",
+  });
+  await svc.command("mode", { rehearsal: false });
+  await svc.command("marker", { text: "A private editing marker" });
+  assert.equal(svc.audience.title, "");
+  assert.equal(svc.audience.portrait, null);
+});
+test("imported media gets independent identities and references", async (t) => {
+  const svc = await setup(t);
+  const filename = path.join(svc.store.dir, "portrait.png");
+  fs.writeFileSync(filename, "image");
+  const asset = svc.importMedia(filename);
+  await svc.command("saveEntity", {
+    collection: "notes",
+    entity: { title: "NPC", portrait: asset.id },
+  });
+  const oldFile = asset.file;
+  svc.importCampaign(svc.exportCampaign());
+  const imported = active(svc.store.state);
+  assert.notEqual(imported.media[0].id, asset.id);
+  assert.notEqual(imported.media[0].file, oldFile);
+  assert.equal(imported.notes[0].portrait, imported.media[0].id);
+});

@@ -80,6 +80,19 @@ const { JSDOM, VirtualConsole } = require("jsdom");
   await new Promise((r) => setTimeout(r, 500));
   if (!d.body.textContent.includes("Short rest"))
     throw Error("Starter cues missing");
+  click("+ Cue");
+  d.querySelector("#f-name").value = "Visual builder cue";
+  d.querySelector('#cueSteps [data-field="title"]').value = "Visible title";
+  d.querySelector("#editorForm").dispatchEvent(
+    new w.Event("submit", { bubbles: true, cancelable: true }),
+  );
+  await wait();
+  if (!d.body.textContent.includes("Visual builder cue"))
+    throw Error("Visual cue editor failed");
+  click("Hotkey bindings");
+  if (!d.querySelector(".hotkey-edit input[data-key]"))
+    throw Error("Hotkey editor failed");
+  click("Cancel");
   click("Run session");
   click("Reveal…");
   d.querySelector("#f-title").value = "Public preview";

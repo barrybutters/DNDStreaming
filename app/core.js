@@ -200,7 +200,14 @@ function validate(s) {
       if (!Array.isArray(c[k])) throw Error(`Campaign is missing ${k}.`);
     if (!c.public || !c.obs || !c.audio || !c.id || typeof c.name !== "string")
       throw Error("Invalid campaign data.");
-    if (c.media.some((m) => !/^[-\w]+\.[a-zA-Z0-9]+$/.test(m.file || "")))
+    if (
+      c.media.some(
+        (m) =>
+          !/^[-\w]+\.(png|jpg|jpeg|webp|gif|mp3|wav|ogg|m4a|mp4)$/i.test(
+            m.file || "",
+          ),
+      )
+    )
       throw Error("Invalid media path.");
   }
   return s;
