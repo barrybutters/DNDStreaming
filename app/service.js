@@ -265,6 +265,7 @@ class Service extends EventEmitter {
             "showInitiative",
             "showParty",
             "paused",
+            "dice",
             "theme",
           ])
             if (k in p) c.public[k] = clone(p[k]);

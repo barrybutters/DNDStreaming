@@ -68,9 +68,10 @@ function render(s) {
 const events = new EventSource("/events");
 events.addEventListener("state", (e) => render(JSON.parse(e.data)));
 setInterval(() => {
+  const seconds = Math.ceil(
+    Math.max(0, (state.breakEnds || 0) - Date.now()) / 1000,
+  );
   $("countdown").textContent = state.breakEnds
-    ? new Date(Math.max(0, state.breakEnds - Date.now()))
-        .toISOString()
-        .slice(14, 19)
+    ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`
     : "";
 }, 250);

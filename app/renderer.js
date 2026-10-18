@@ -184,7 +184,7 @@ function renderPage(c) {
             btn("Sort initiative", "sortCombat") +
             btn("Save encounter", "saveEncounter"),
         ) +
-        `<div class="grid">${card("Initiative · Round " + c.round, combatRows(c), btn("Next turn →", "nextTurn", "", "primary small"))}${card("Dice roller", `<form id="diceForm">${input("expression", "Dice expression", "1d20+5")}${select("mode", "Roll mode", ["normal", "advantage", "disadvantage"], "normal")}${check("publish", "Show result to audience", false)}<button class="primary" style="margin-top:15px">Roll dice</button></form><h3 style="margin-top:25px">Saved rolls</h3><div class="actions">${c.savedRolls.map((r) => btn(esc(r), "savedRoll", `data-expression="${esc(r)}"`, "small")).join("")}</div>`)}${card("Saved encounters", c.encounters.map((e) => `<div class="row"><span>${esc(e.name)} · ${e.combat.length} combatants</span>${btn("Load", "loadEncounter", `data-id="${e.id}"`, "small")}</div>`).join("") || empty("Save the current encounter to reuse it."))}${card("Audience combat settings", `<p>Hidden enemies never appear in the public initiative list. Edit each combatant to set its public name, health display, and public conditions.</p>${btn(c.public.showInitiative ? "Hide initiative" : "Show initiative", "initiative")}`)}</div>`
+        `<div class="grid">${card("Initiative · Round " + c.round, combatRows(c), btn("Next turn →", "nextTurn", "", "primary small"))}${card("Dice roller", `<form id="diceForm">${input("expression", "Dice expression", "1d20+5")}${select("mode", "Roll mode", ["normal", "advantage", "disadvantage"], "normal")}${check("publish", "Show result to audience", false)}<button class="primary" style="margin-top:15px">Roll dice</button></form><div class="actions" style="margin-top:10px">${btn("Hide dice result", "clearDice")}</div><h3 style="margin-top:25px">Saved rolls</h3><div class="actions">${c.savedRolls.map((r) => btn(esc(r), "savedRoll", `data-expression="${esc(r)}"`, "small")).join("")}</div>`)}${card("Saved encounters", c.encounters.map((e) => `<div class="row"><span>${esc(e.name)} · ${e.combat.length} combatants</span>${btn("Load", "loadEncounter", `data-id="${e.id}"`, "small")}</div>`).join("") || empty("Save the current encounter to reuse it."))}${card("Audience combat settings", `<p>Hidden enemies never appear in the public initiative list. Edit each combatant to set its public name, health display, and public conditions.</p>${btn(c.public.showInitiative ? "Hide initiative" : "Show initiative", "initiative")}`)}</div>`
       );
     case "party":
       return (
@@ -196,7 +196,11 @@ function renderPage(c) {
             "addEntity",
             'data-collection="characters"',
             "primary",
-          ),
+          ) +
+            btn(
+              c.public.showParty ? "Hide party overlay" : "Show party overlay",
+              "toggleParty",
+            ),
         ) +
         `<div class="grid three">${c.characters.map((x) => card(esc(x.name), `${x.portrait ? `<img class="media-thumb" src="/media/${esc(x.portrait)}" alt="Portrait">` : ""}<p>${esc(x.player || "")} · ${esc(x.classLevel || "")}</p><span class="hp">${x.hp}/${x.maxHp} HP</span><div class="progress"><i style="width:${Math.max(0, Math.min(100, (x.hp / Math.max(1, x.maxHp)) * 100))}%"></i></div><p class="tiny" style="margin-top:10px">${esc(x.conditions || "No conditions")} · ${x.absent ? "Absent" : x.visible ? "Public card enabled" : "Private card"}</p><div class="row"><span>Spotlight: ${c.spotlight[x.id] || 0}</span>${btn("Mark moment", "spotlight", `data-id="${x.id}"`, "small")}</div><div class="actions">${btn("Damage", "damage", `data-id="${x.id}" data-collection="characters"`, "small")}${btn("Heal", "heal", `data-id="${x.id}" data-collection="characters"`, "small")}${btn("Edit", "editEntity", `data-id="${x.id}" data-collection="characters"`, "small")}</div>`)).join("") || empty("Add the party to track health, attendance, and spotlight.")}</div>`
       );
@@ -545,7 +549,10 @@ document.addEventListener("click", async (e) => {
         portrait: n.portrait,
         subtitle: "",
       });
-    } else if (a === "initiative")
+    } else if (a === "toggleParty")
+      await call("public", { showParty: !c.public.showParty });
+    else if (a === "clearDice") await call("public", { dice: null });
+    else if (a === "initiative")
       await call("public", { showInitiative: !c.public.showInitiative });
     else if (a === "savedRoll") {
       const r = await call("roll", {
