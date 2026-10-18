@@ -365,6 +365,9 @@ class Service extends EventEmitter {
         } else if (type === "panic") {
           await this.panic(c);
         } else if (type === "resume") {
+          if (["We’ll be right back", "Taking a short rest"].includes(c.public.title)) {
+            c.public.title = ""; c.public.subtitle = "";
+          }
           c.public.paused = false;
           c.public.breakEnds = null;
           if (c.rehearsal) {

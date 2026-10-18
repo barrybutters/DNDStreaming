@@ -54,7 +54,7 @@ function render(s) {
       Object.assign($(key).style,{left:b.x+'%',top:b.y+'%',width:b.w+'%',height:b.h+'%',right:'auto',bottom:'auto',visibility:b.hidden?'hidden':'visible',boxSizing:'border-box',overflow:'hidden'});
     }
   }
-  const m = s.map;
+  const m = s.paused ? null : s.map;
   $("map").innerHTML = m
     ? `<div class="map-surface"><img src="/media/${encodeURIComponent(m.media)}" alt="Battle map">` +
       Array.from({ length: m.cols * m.rows }, (_, i) =>
