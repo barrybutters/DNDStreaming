@@ -350,6 +350,10 @@ class Service extends EventEmitter {
         } else if (type === "resume") {
           c.public.paused = false;
           c.public.breakEnds = null;
+          if (c.rehearsal) {
+            Object.assign(this.audience,{paused:false,breakEnds:null,title:"",subtitle:""});
+            this.send("state",this.audience);
+          }
         } else if (type === "mapSelect") {
           c.selectedMap = p.id;
         } else if (type === "mapCell") {

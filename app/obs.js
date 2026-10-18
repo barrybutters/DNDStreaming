@@ -29,7 +29,7 @@ class Obs extends EventEmitter {
       if(generation!==this.generation || client!==this.client){await client.disconnect();return;}
       this.status.connected=true;await this.refresh();
       this.status.reconnecting=false;this.status.error='';this.attempt=0;
-      clearTimeout(this.retry);this.emit('status');return this.status;
+      clearTimeout(this.retry);this.retry=null;this.emit('status');return this.status;
     } catch(e) {
       if(generation!==this.generation || client!==this.client) return;
       this.status.connected=false;this.status.error=e.message;

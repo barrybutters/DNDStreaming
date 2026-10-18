@@ -241,7 +241,45 @@ app.whenReady().then(async () => {
         for(const page of pages) { document.querySelector('[data-page="'+page+'"]').click(); await wait(30); if(!document.querySelector('h1')) throw Error('Page failed: '+page); }
         return {pages:pages.length, preload:true, campaign:true};
       })()`);
-      console.log("DESKTOP_SMOKE_OK " + JSON.stringify(result));
+      // Verify the actual Chromium audience pages and SSE connection, not only the DM UI.
+      await service.command("mode", {rehearsal:false});
+      const views = [];
+      for (const endpoint of ["/overlay", "/dice"]) {
+        const view = new BrowserWindow({show:false,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});
+        views.push(view);await view.loadURL(service.url + endpoint);
+      }
+      await service.command("public", {title:"Broadcast check"});
+      const rolled = await service.command("roll", {expression:"2d6+3",publish:true,label:"Monster check"});
+      await new Promise(r=>setTimeout(r,2200));
+      for (let i=0;i<views.length;i++) {
+        const output = await views[i].webContents.executeJavaScript(`({
+          title:document.querySelector('#title').textContent,
+          total:document.querySelector('#dice b')?.textContent,
+          values:[...document.querySelectorAll('.visual-die')].map(x=>Number(x.textContent)),
+          titleDisplay:getComputedStyle(document.querySelector('#title')).display,
+          hidden:document.querySelector('#dice').hidden
+        })`);
+        if(output.title !== "Broadcast check" || Number(output.total)!==rolled.total ||
+           JSON.stringify(output.values)!==JSON.stringify(rolled.values) || output.hidden)
+          throw Error("Audience dice/SSE rendering failed: " + JSON.stringify(output));
+        if(i===1 && output.titleDisplay!=="none") throw Error("Dice source leaked other overlay layers");
+      }
+      const stockMap = service.snapshot().catalog.find(x=>x.kind==='map');
+      if (!stockMap) throw Error("No bundled map found");
+      const map = await service.command("stockAdd", {id:stockMap.id});
+      await service.command("mapPublish", {id:map.id,published:true});
+      await new Promise(r=>setTimeout(r,400));
+      await views[0].webContents.executeJavaScript(`(async()=>{
+        const image=document.querySelector('#map > img');
+        if(!image)throw Error('Published map did not render');
+        await image.decode();if(image.naturalWidth<1024)throw Error('Bundled map is too small');
+      })()`);
+      await service.command("panic");
+      await new Promise(r=>setTimeout(r,150));
+      const paused = await views[0].webContents.executeJavaScript(`getComputedStyle(document.querySelector('#pause')).display`);
+      if(paused!=="flex") throw Error("Privacy screen did not render");
+      for(const view of views)view.destroy();
+      console.log("DESKTOP_SMOKE_OK " + JSON.stringify({...result,audience:true,animatedDice:true,mapDecoded:true,privacy:true}));
       globalShortcut.unregisterAll();
       await service.close();
       window.destroy();

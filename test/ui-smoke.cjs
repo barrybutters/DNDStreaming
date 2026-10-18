@@ -51,6 +51,7 @@ const { JSDOM, VirtualConsole } = require("jsdom");
   );
   await wait();
   for (const page of [
+    "Starter maps & tokens",
     "Combat & dice",
     "Party & spotlight",
     "Campaign notebook",
@@ -111,7 +112,7 @@ const { JSDOM, VirtualConsole } = require("jsdom");
   await wait();
   console.log(
     JSON.stringify({
-      pages: 10,
+      pages: 11,
       characterSaved: true,
       starterCues: true,
       revealPreview: true,

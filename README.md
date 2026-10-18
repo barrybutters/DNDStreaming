@@ -76,3 +76,16 @@ npm run preview
 ```
 
 The browser preview is a development aid with a private API token and temporary port. File dialogs, native hotkeys, output-window handling, and device routing should be checked in the Electron app. It is not the Windows executable.
+
+## Version 0.2 streaming workflow
+
+1. Start Dungeon Director and OBS. Under OBS → Tools → WebSocket Server Settings, enable the server; connect in **Settings & checks**.
+2. Under **Show preparation**, choose **Add overlay source to OBS**, select a scene and confirm. Alternatively add a Browser Source yourself, 1920 × 1080, using `http://127.0.0.1:18765/overlay`.
+3. **Enable OBS output** in the header. Rehearsal holds existing output; publishing a map, reveal or public roll explicitly offers to enable output.
+4. For dice alone, use `http://127.0.0.1:18765/dice`. In **Combat & dice**, enter an expression and a public NPC/monster label, then check **Animate this roll for viewers in OBS**. The animation settles on the server's actual result and clears after 14 seconds. Reconnecting does not replay expired rolls.
+5. For maps alone, use `http://127.0.0.1:18765/battlemap`. Choose a map from **Starter maps & tokens**, place tokens, reveal cells, then publish. Imported starter maps begin private, with all cells revealed in the DM preview. Tokens begin hidden and remain concealed under fog.
+6. Keep the app open during the stream. Empty sources are transparent. Disable OBS's **Shutdown source when not visible** option. Place the source above any full-screen camera or game source.
+
+The starter tokens are original, editable generic SVG portraits with the exact included species/lineage names listed in the app. They are not official D&D artwork and do not include game statistics. Creature tokens are generic fallbacks. Additional homebrew species can use imported portraits. Bundled artwork may be used in your campaigns and streams.
+
+OBS reconnects automatically after a connection loss. Failed actions are never queued or replayed. Credentials remain only in memory. Privacy pause stops local audio, clears audience content and attempts the configured OBS privacy scene/mutes even when rehearsal is holding output. Resume does not unmute microphones.

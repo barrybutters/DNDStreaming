@@ -4,3 +4,4 @@ dist/
 *.log
 
 .build-tmp/
+.map-blobs.json
