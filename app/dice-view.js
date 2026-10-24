@@ -33,7 +33,7 @@
      const light=Math.max(0,Math.min(1,.45+f.normal[2]*.35-f.normal[0]*.2-f.normal[1]*.15));
      ctx.fillStyle=`hsl(${b.hue} 45% ${24+light*37}%)`;ctx.fill();ctx.lineWidth=1.4;ctx.strokeStyle='rgba(255,237,192,.75)';ctx.stroke();
      const center=project(f.center),number=f.index===b.face?b.value:f.index+1;
-     ctx.save();ctx.translate(...center);ctx.rotate((1-blend)*b.spin[2]*(1-travel));ctx.scale(1,Math.max(.22,f.normal[2]));
+     ctx.save();ctx.clip();ctx.translate(...center);ctx.rotate((1-blend)*b.spin[2]*(1-travel));ctx.scale(1,Math.max(.22,f.normal[2]));
      ctx.fillStyle='#fff3d7';ctx.strokeStyle='rgba(0,0,0,.55)';ctx.lineWidth=3;
      ctx.font=`700 ${Math.round(radius*(b.sides===6?.61:.43))}px Segoe UI, sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.strokeText(String(number),0,0);ctx.fillText(String(number),0,0);ctx.restore();
     }
@@ -55,11 +55,13 @@
    const dice=(roll.values||[]).slice(0,100).map(value=>{const die=doc.createElement('span');die.className='visual-die rolling';die.textContent='?';accessible.append(die);return {die,value};});
    result.append(label,total,detail);node.append(canvas,result,accessible);
    const sides=Number(/d(\d+)/i.exec(roll.expression)?.[1]||20),mesh=geometry.mesh(sides);
+   let seed=Array.from(String(next)).reduce((h,c)=>Math.imul(h^c.charCodeAt(0),16777619),2166136261)>>>0;
+   const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
    bodies=dice.map(({value},i)=>{
     const face=(value-1)%mesh.faces.length,columns=Math.min(8,dice.length),rows=Math.ceil(dice.length/columns);
-    return {value,sides,mesh,face,target:geometry.multiply(geometry.euler(.24,-.19,i*1.7+.25),geometry.orientation(mesh.faces[face].normal)),
-     x:.18+((i%columns)+.5)*.64/columns+Math.sin(i*17)*.015,y:.3+(Math.floor(i/columns)+.5)*.43/rows+Math.cos(i*11)*.018,
-     fromX:i%2?1.12:-.12,fromY:.1+((i*7)%13)/13*.6,phase:i*.8,spin:[12+i*.7,9+i*1.1,8+i*.5],hue:35+(i%3)*8};
+    return {value,sides,mesh,face,target:geometry.multiply(geometry.euler(.24,-.19,random()*Math.PI*2),geometry.orientation(mesh.faces[face].normal)),
+     x:.18+((i%columns)+.5)*.64/columns+(random()-.5)*.035,y:.3+(Math.floor(i/columns)+.5)*.43/rows+(random()-.5)*Math.min(.24,.28/rows),
+     fromX:random()>.5?1.12:-.12,fromY:.1+random()*.6,phase:random()*6,spin:[12+random()*10,9+random()*12,8+random()*8],hue:35+(i%3)*8};
    });
    function finish(){for(const {die,value} of dice){die.classList.remove('rolling');die.textContent=value;}total.textContent=String(roll.total);detail.textContent=`${roll.expression} · ${(roll.values||[]).join(', ')}`;result.classList.add('settled');draw(3000);}
    const reduced=win.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
