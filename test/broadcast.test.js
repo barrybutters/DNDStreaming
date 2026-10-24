@@ -50,7 +50,7 @@ test('visual dice settle on server values, ignore duplicate events, and expire',
   const jobs=[];let now=10000;const view=create(node,{now:()=>now,setTimeout:(fn,ms)=>{const job={fn,ms};jobs.push(job);return job},clearTimeout:job=>{if(job)job.cancel=true}});
   const roll={rollId:'a',at:now,values:[6,2],total:11,expression:'2d6+3',label:'<script>private</script>'};
   view.show(roll);assert.equal(node.querySelector('script'),null);
-  jobs.find(x=>x.ms===1600).fn();
+  jobs.find(x=>x.ms===3000).fn();
   assert.equal(node.querySelector('b').textContent,'11');
   assert.deepEqual([...node.querySelectorAll('.visual-die')].map(x=>x.textContent),['6','2']);
   const count=jobs.length;view.show(roll);assert.equal(jobs.length,count);

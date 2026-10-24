@@ -106,22 +106,15 @@
       .active {
         border: 2px solid var(--accent, #e9bd73);
       }
-      #dice {
-        position: absolute;
-        left: 30px;
-        top: 30px;
-        background: var(--panel, #101b2e);
-        padding: 18px;
-        border: 1px solid var(--accent, #e9bd73);
-        border-radius: 12px;
-      }
-      #dice b {
-        display: block;
-        font-size: 46px;
-        color: var(--accent, #e9bd73);
-      }
+      #dice {position:fixed;inset:0;background:transparent;pointer-events:none;z-index:10;}
+      .dice-table {position:absolute;inset:0;width:100%;height:100%;}
+      .dice-result {position:absolute;bottom:5%;left:15%;right:15%;text-align:center;color:#fff3d7;text-shadow:0 2px 4px #000,0 0 14px #000;font-size:22px;}
+      #dice b {display:block;font-size:48px;color:#f8d99a;}
+      .dice-result:not(.settled) b {font-size:24px;}
+      .dice-accessible {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);}
       #pause {
         display: none;
+        z-index:20;
         position: absolute;
         inset: 0;
         background: #0c1323f5;
@@ -135,13 +128,8 @@
       }
       #map .token-image {width:64px;height:64px;object-fit:contain;display:block}
       [hidden] { display: none !important; }
-      .dice-tray { display:flex; flex-wrap:wrap; gap:12px; margin:18px 0; max-width:540px; }
-      .visual-die { display:grid; place-items:center; width:64px; height:64px; background:linear-gradient(135deg,#f4d798,#9b6228); color:#20150d; font-size:30px; font-weight:bold; clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%); }
-      .rolling { animation:tumble .45s infinite ease-in-out; }
-      @keyframes tumble { 0% {transform:rotate(0) translateY(0)} 50% {transform:rotate(170deg) translateY(-14px)} 100% {transform:rotate(360deg) translateY(0)} }
-      @media(prefers-reduced-motion:reduce) { .rolling {animation:none} }
       body.dice-only > :not(#dice), body.map-only > :not(#map) {display:none !important}
-      body.dice-only #dice {left:50%;top:50%;transform:translate(-50%,-50%);min-width:260px;text-align:center}
+      body.dice-only,body.dice-only.screen {background:transparent !important;}
       #dice small {display:block}
     </style>
   </head>
@@ -159,6 +147,7 @@
       </div>
     </div>
     <script src="/layout.js"></script>
+    <script src="/dice-geometry.js"></script>
     <script src="/dice-view.js"></script>
     <script src="/overlay.js"></script>
   </body>

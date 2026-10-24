@@ -247,25 +247,33 @@ app.whenReady().then(async () => {
       await service.command("mode", {rehearsal:false});
       const views = [];
       for (const endpoint of ["/overlay", "/dice"]) {
-        const view = new BrowserWindow({show:false,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});
+        const view = new BrowserWindow({show:false,width:1920,height:1080,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true,backgroundThrottling:false}});
         views.push(view);await view.loadURL(service.url + endpoint);
       }
       await service.command("public", {title:"Broadcast check"});
       const rolled = await service.command("roll", {expression:"2d6+3",publish:true,label:"Monster check"});
-      await new Promise(r=>setTimeout(r,2200));
+      await new Promise(r=>setTimeout(r,3600));
       for (let i=0;i<views.length;i++) {
         const output = await views[i].webContents.executeJavaScript(`({
           title:document.querySelector('#title').textContent,
           total:document.querySelector('#dice b')?.textContent,
           values:[...document.querySelectorAll('.visual-die')].map(x=>Number(x.textContent)),
           titleDisplay:getComputedStyle(document.querySelector('#title')).display,
-          hidden:document.querySelector('#dice').hidden
+          hidden:document.querySelector('#dice').hidden,
+          transparent:getComputedStyle(document.querySelector('#dice')).backgroundColor,
+          canvas:(()=>{const c=document.querySelector('#dice canvas'),d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let visible=0;for(let i=3;i<d.length;i+=4)if(d[i])visible++;return {width:c.clientWidth,height:c.clientHeight,visible,total:d.length/4};})()
         })`);
         if(output.title !== "Broadcast check" || Number(output.total)!==rolled.total ||
            JSON.stringify(output.values)!==JSON.stringify(rolled.values) || output.hidden)
           throw Error("Audience dice/SSE rendering failed: " + JSON.stringify(output));
+        if(output.transparent!=="rgba(0, 0, 0, 0)" || output.canvas.visible<100 || output.canvas.visible>output.canvas.total*.4)
+          throw Error("Dice canvas must contain dice with a transparent surrounding surface: "+JSON.stringify(output.canvas));
+        if(i===1 && (output.canvas.width<1000 || output.canvas.height<600)) throw Error("Dice table is not full screen");
         if(i===1 && output.titleDisplay!=="none") throw Error("Dice source leaked other overlay layers");
       }
+      const screenshotDir = path.join(process.cwd(), "test-output");
+      fs.mkdirSync(screenshotDir,{recursive:true});
+      fs.writeFileSync(path.join(screenshotDir,"dice-table.png"),(await views[1].webContents.capturePage()).toPNG());
       const catalog = service.snapshot().catalog;
       if(catalog.filter(x=>x.kind==='map').length!==20 || catalog.filter(x=>x.kind==='token').length!==98)
         throw Error("Starter asset bundle is incomplete");

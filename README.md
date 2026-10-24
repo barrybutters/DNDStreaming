@@ -95,3 +95,9 @@ OBS reconnects automatically after a connection loss. Failed actions are never q
 Extract the entire portable ZIP into a writable folder and run **Start-Portable.cmd**. On first launch choose data beside the app or a custom folder. Keep the full extracted folder together; the executable depends on its bundled files. Normal installed launches continue to use the Windows profile data folder. To move an existing campaign, export/import it rather than deleting its old data. Advanced users can set `DIRECTOR_DATA_DIR` to an explicit data directory.
 
 **Show preparation → Arrange overlay** lets you drag layer positions and enter exact sizes or hide layers. Separate `/dice` and `/battlemap` sources retain their dedicated full-source layouts. In Settings, the shortcut test checks global hotkeys and keyboard-emulating foot pedals without triggering cues for 60 seconds. Privacy pause is always active.
+
+### Transparent tabletop dice (0.2.1)
+
+The `/dice` browser source now fills the source canvas with transparent space. Shaded polyhedral dice tumble and bounce across it, cast soft shadows, and settle on the authoritative server values. There is no background panel or painted tabletop, so the stream underneath remains visible. Results clear after 14 seconds. The main overlay also uses this full-screen dice layer; its old layout box no longer constrains dice travel.
+
+In OBS, use 1920 × 1080 for the Browser Source, reset its transform and fit it to your canvas. Put it above your other sources. If upgrading with OBS already open, use **Refresh cache of current page** in Browser Source properties. The roll is a 3D visual animation driven by the server result, rather than a physics simulation used to determine the random result. Reduced-motion preferences show settled dice immediately.

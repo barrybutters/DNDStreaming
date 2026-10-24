@@ -911,6 +911,7 @@ class Service extends EventEmitter {
       "/dice": "overlay.html",
       "/battlemap": "overlay.html",
       "/dice-view.js": "dice-view.js",
+      "/dice-geometry.js": "dice-geometry.js",
       "/layout.js": "layout.js",
       "/overlay.js": "overlay.js",
       "/audio.js": "audio.js",

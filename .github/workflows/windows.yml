@@ -31,3 +31,10 @@ jobs:
         with:
           name: Dungeon-Director-Portable-Windows
           path: dist/*-Windows-*.zip
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Dungeon-Director-Visual-Checks
+          path: test-output/*.png
+          if-no-files-found: ignore

@@ -51,6 +51,7 @@ function render(s) {
   $("pauseTitle").textContent = s.title || "We’ll be right back";
   if (s.layout && location.pathname === "/overlay") {
     for (const [key,b] of Object.entries(DirectorLayout.normalize(s.layout))) {
+      if (key === "dice") continue;
       Object.assign($(key).style,{left:b.x+'%',top:b.y+'%',width:b.w+'%',height:b.h+'%',right:'auto',bottom:'auto',visibility:b.hidden?'hidden':'visible',boxSizing:'border-box',overflow:'hidden'});
     }
   }
